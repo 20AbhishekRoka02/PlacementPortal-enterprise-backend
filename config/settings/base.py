@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'course',
     'appconfig',
     'django_extensions',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
