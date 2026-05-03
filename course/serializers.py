@@ -11,6 +11,11 @@ class ReadCourseSerializer(ModelSerializer):
         model = Course
         fields = ['id', 'name', 'semester', 'years']
 
+class UpdateCourseSerializer(ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['name', 'semester', 'years']
+
 class BatchSerializer(ModelSerializer):
     class Meta:
         model = Batch
