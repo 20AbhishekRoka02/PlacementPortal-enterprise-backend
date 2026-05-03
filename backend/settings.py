@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'job',
     'course',
     'appconfig',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -156,9 +157,18 @@ REST_AUTH = {
     'JWT_AUTH_HTTPONLY': True,
 }
 
+# Production
+# SIMPLE_JWT = {
+#     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+#     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+#     'ROTATE_REFRESH_TOKENS': True,
+#     'BLACKLIST_AFTER_ROTATION': True,
+# }
+
+# Dev
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=3650),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=3650),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
 }
