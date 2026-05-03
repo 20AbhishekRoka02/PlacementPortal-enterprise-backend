@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'appconfig',
     'django_extensions',
     'ckeditor',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
