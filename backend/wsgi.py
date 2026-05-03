@@ -14,7 +14,6 @@ load_dotenv()
 from django.core.wsgi import get_wsgi_application
 
 dj_env = os.environ.get('DJANGO_ENV')
-print(10*"&","django_env: ", dj_env)
 if dj_env == 'development':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
 else:
