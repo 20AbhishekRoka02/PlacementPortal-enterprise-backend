@@ -1,16 +1,17 @@
 from django.db import models
+from ckeditor.fields import RichTextField
 
 # Create your models here.
 class Job(models.Model):
     company = models.ForeignKey('company.Company', on_delete=models.CASCADE, related_name='jobs')
     title = models.CharField(max_length=255)
-    description = models.TextField()
+    description = RichTextField()
     location = models.CharField(max_length=255)
     salary = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     posted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deadline = models.DateTimeField(null=True, blank=True)
-    skill = models.ManyToManyField('Skill', related_name='jobs', blank=True)
+    # skill = models.ManyToManyField('Skill', related_name='jobs', blank=True)
     
     def __str__(self):
         return f"{self.title} at {self.company.name}"

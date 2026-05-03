@@ -1,8 +1,9 @@
 from rest_framework.serializers import ModelSerializer
-from users.serializers import UpdateUserSerializer
+from users.serializers import ReadUserSerializer, UpdateUserSerializer
 from .models import Company
 
 class CompanySerializer(ModelSerializer):
+    user = ReadUserSerializer(read_only=True)
     class Meta:
         model = Company
         fields = '__all__'
