@@ -11,7 +11,8 @@ services:
       - db
       - adminer
     working_dir: /app
-    command: bash -c "python3 manage.py runserver 0.0.0.0:8000"
+    # command: bash -c "python3 manage.py runserver 0.0.0.0:8000"
+    command: bash -c "gunicorn backend.wsgi:application --bind 0.0.0.0:8000"
   db:
     image: postgres:18
     environment:
