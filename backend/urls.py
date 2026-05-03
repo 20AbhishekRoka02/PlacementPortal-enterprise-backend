@@ -22,5 +22,7 @@ urlpatterns = [
     path('api/auth/', include('dj_rest_auth.urls')),
     path('appconfig/', include('appconfig.urls')),
     path('student/', include('student.urls')),
-    path('company/', include('company.urls'))
+    path('company/', include('company.urls')),
+    path('course/', include('course.urls')),
+    path('job/', include('job.urls')),
 ]

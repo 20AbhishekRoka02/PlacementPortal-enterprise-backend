@@ -10,15 +10,14 @@ class Job(models.Model):
     posted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deadline = models.DateTimeField(null=True, blank=True)
-    roles = models.ManyToManyField('Role', related_name='jobs', blank=True)
+    skill = models.ManyToManyField('Skill', related_name='jobs', blank=True)
     
     def __str__(self):
         return f"{self.title} at {self.company.name}"
 
 
-class Role(models.Model):
+class Skill(models.Model):
     name = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
     
     def __str__(self):
         return self.name

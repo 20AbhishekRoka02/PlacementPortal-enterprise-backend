@@ -1,8 +1,8 @@
-# from django.shortcuts import render
 from rest_framework import viewsets
 from .models import Student
 from .serializers import StudentSerializer
 from rest_framework.response import Response
+from users.models import User
 
 # Create your views here.
 class StudentViewSet(viewsets.ModelViewSet):
@@ -10,6 +10,8 @@ class StudentViewSet(viewsets.ModelViewSet):
     serializer_class = StudentSerializer
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response({'data': serializer.data})
+        if isinstance(request.user, User) and request.user.is_authenticated:
+            queryset = self.get_queryset()
+            serializer = self.get_serializer(queryset, many=True)
+            return Response({'data': serializer.data})
+        return Response({'error': 'Unauthorized'}, status=401)
