@@ -35,3 +35,15 @@ class UpdateStudentSerializer(ModelSerializer):
         instance.save()
 
         return instance
+
+class CreateStudentSerializer(ModelSerializer):
+    class Meta:
+        model = Student
+        fields = ['user', 'phone_number', 'whatsapp_number', 'course', 'batch']
+        extra_kwargs = {
+            'user': {'required': True},
+            'phone_number': {'required': True},
+            'whatsapp_number': {'required': True},
+            'course': {'required': True},
+            'batch': {'required': True},
+        }

@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from .models import Student
-from .serializers import ReadStudentSerializer, UpdateStudentSerializer
+from .serializers import ReadStudentSerializer, UpdateStudentSerializer, CreateStudentSerializer
 from rest_framework.response import Response
 from users.models import User
 
@@ -14,9 +14,16 @@ class StudentViewSet(viewsets.ModelViewSet):
             'retrieve': ReadStudentSerializer,
             'update': UpdateStudentSerializer,
             'partial_update': UpdateStudentSerializer,
+            'create': CreateStudentSerializer
             }
         print("Serializer: ", self.action)
         return serializer_classes.get(self.action, ReadStudentSerializer)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=201)
 
     def list(self, request, *args, **kwargs):
         if isinstance(request.user, User) and request.user.is_authenticated:
