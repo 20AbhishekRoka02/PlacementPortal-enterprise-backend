@@ -6,14 +6,19 @@ from .serializers import (
     RetrieveJobSerializer,
     CreateJobSerializer,
     UpdateJobSerializer,
-    ApplicationSerializer,
-    CreateApplicationSerializer)
+    ApplicationCreateSerializer,
+    ApplicationListSerializer,
+    ApplicationDetailSerializer)
+from student.models import Student
 from rest_framework import viewsets
 from rest_framework.response import Response
 from users.models import User, UserRole
 from company.models import Company
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
 # Create your views here.
 
 class JobViewSet(viewsets.ModelViewSet):
@@ -42,19 +47,34 @@ class JobViewSet(viewsets.ModelViewSet):
 
         return Job.objects.all()
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+
+        if self.request.user.is_authenticated and self.request.user.role == UserRole.STUDENT:
+            student = getattr(self.request.user, 'student_profile', None)
+            if student:
+                applied_job_ids = Application.objects.filter(student=student).values_list('job_id', flat=True)
+                context['applied_job_ids'] = set(applied_job_ids)
+
+        return context
+
     def create(self, request, *args, **kwargs):
         user = request.user
 
         if user.is_authenticated and user.role == UserRole.COMPANY:
             company = Company.objects.filter(user=user).first()
-            print("company is: ", company)
+            if not company:
+                return Response({'detail': 'Company profile not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            data = request.data.copy()
             request.data['company'] = company.pk
+
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
-            return Response(serializer.data, status=201)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        return Response({'detail': 'Unauthorized'}, status=401)
+        return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
     def list(self, request, *args, **kwargs):
         self.queryset = self.get_queryset()
@@ -98,7 +118,7 @@ class JobViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        return Response(RetrieveJobSerializer(instance).data)
+        return Response(RetrieveJobSerializer(instance, context=self.get_serializer_context()).data)
 
     def destroy(self, request, *args, **kwargs):
         user = request.user
@@ -117,24 +137,65 @@ class JobViewSet(viewsets.ModelViewSet):
         return Response({'detail': 'Job deleted successfully'}, status=status.HTTP_200_OK)
 
 class ApplicationViewSet(viewsets.ModelViewSet):
-    queryset = Application.objects.all()
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
-        serializer_classes = {
-            'list': ApplicationSerializer,
-            'retrieve': ApplicationSerializer,
-            'create': CreateApplicationSerializer
-            }
-        print("Serializer: ", self.action)
-        return serializer_classes.get(self.action, ApplicationSerializer)
+        if self.action == 'create':
+            return ApplicationCreateSerializer
+        if self.action == 'list':
+            return ApplicationListSerializer
+        if self.action == 'retrieve':
+            return ApplicationDetailSerializer
+        return ApplicationDetailSerializer
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return Response(serializer.data, status=201)
+    def get_queryset(self):
+        user = self.request.user
+
+        # Student sees only own applications
+        if user.role == 'student':
+            if not hasattr(user, 'student_profile'):
+                return Application.objects.none()
+            return Application.objects.filter(
+                student=user.student_profile
+            ).select_related(
+                'student', 'student__user', 'job', 'job__company'
+            ).prefetch_related('student__resume')
+
+        # Company sees applications only for their own jobs
+        if user.role == 'company':
+            return Application.objects.filter(
+                job__company__user=user   # adjust if your Company model uses a different field
+            ).select_related(
+                'student', 'student__user', 'job', 'job__company'
+            ).prefetch_related('student__resume')
+
+        return Application.objects.none()
+
+    def perform_create(self, serializer):
+        if self.request.user.role != 'student':
+            raise PermissionDenied("Only students can apply for jobs.")
+
+        student = get_object_or_404(Student, user=self.request.user)
+        job = serializer.validated_data['job']
+
+        if Application.objects.filter(student=student, job=job).exists():
+            raise PermissionDenied("You have already applied for this job.")
+
+        serializer.save(student=student)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response({'data': serializer.data})
+        if request.user.role != 'company':
+            raise PermissionDenied("Only company users can view the application list.")
+        return super().list(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        raise PermissionDenied("Update is not allowed.")
+
+    def partial_update(self, request, *args, **kwargs):
+        raise PermissionDenied("Update is not allowed.")
+
+    def destroy(self, request, *args, **kwargs):
+        raise PermissionDenied("Delete is not allowed.")
