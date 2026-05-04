@@ -8,6 +8,15 @@ class CompanySerializer(ModelSerializer):
         model = Company
         fields = '__all__'
 
+class ListCompanyWithJobSerializer(ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ['name']
+
+class RetrieveCompanyWithJobSerializer(ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ['name', 'website']
 
 class CreateCompanySerializer(ModelSerializer):
     class Meta:

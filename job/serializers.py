@@ -1,15 +1,27 @@
+
 from .models import Job, Application
 from rest_framework.serializers import ModelSerializer
+from company.serializers import (
+    ListCompanyWithJobSerializer,
+    RetrieveCompanyWithJobSerializer,
+    )
 
-class JobSerializer(ModelSerializer):
+class ListJobSerializer(ModelSerializer):
+    company = ListCompanyWithJobSerializer(read_only=True)
     class Meta:
         model = Job
-        fields = '__all__'
+        fields = ['id', 'company', 'title', 'salary', 'location', 'deadline']
+
+class RetrieveJobSerializer(ModelSerializer):
+    company = RetrieveCompanyWithJobSerializer(read_only=True)
+    class Meta:
+        model = Job
+        fields = ['id', 'company', 'title', 'description', 'salary', 'location', 'deadline']
 
 class CreateJobSerializer(ModelSerializer):
     class Meta:
         model = Job
-        fields = ['company', 'title', 'description', 'location', 'salary', 'deadline']
+        fields = ['id', 'company', 'title', 'description', 'location', 'salary', 'deadline']
         extra_kwargs = {
             'company': {'required': True},
             'title': {'required': True},

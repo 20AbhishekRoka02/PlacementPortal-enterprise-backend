@@ -1,7 +1,18 @@
 from django.shortcuts import render
+from django.utils import timezone
 from .models import Job, Application
-from .serializers import JobSerializer, CreateJobSerializer, UpdateJobSerializer, ApplicationSerializer, CreateApplicationSerializer
+from .serializers import (
+    ListJobSerializer,
+    RetrieveJobSerializer,
+    CreateJobSerializer,
+    UpdateJobSerializer,
+    ApplicationSerializer,
+    CreateApplicationSerializer)
 from rest_framework import viewsets
+from rest_framework.response import Response
+from users.models import User, UserRole
+from company.models import Company
+from rest_framework import status
 from rest_framework.response import Response
 # Create your views here.
 
@@ -10,25 +21,74 @@ class JobViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         serializer_classes = {
-            'list': JobSerializer,
-            'retrieve': JobSerializer,
+            'list': ListJobSerializer,
+            'retrieve': RetrieveJobSerializer,
             'update': UpdateJobSerializer,
             'partial_update': UpdateJobSerializer,
             'create': CreateJobSerializer
             }
-        print("Serializer: ", self.action)
-        return serializer_classes.get(self.action, JobSerializer)
+        return serializer_classes.get(self.action)
+
+    def get_queryset(self):
+        user = self.request.user
+        if not user.is_authenticated:
+            return Job.objects.none()
+
+        if user.role == UserRole.COMPANY:
+            company = Company.objects.filter(user=user).first()
+            if company:
+                return Job.objects.filter(company=company)
+            return Job.objects.none()
+
+        return Job.objects.all()
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return Response(serializer.data, status=201)
+        user = request.user
+
+        if user.is_authenticated and user.role == UserRole.COMPANY:
+            company = Company.objects.filter(user=user).first()
+            print("company is: ", company)
+            request.data['company'] = company.pk
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=201)
+
+        return Response({'detail': 'Unauthorized'}, status=401)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
+        self.queryset = self.get_queryset()
+        serializer = self.get_serializer(self.queryset, many=True)
         return Response({'data': serializer.data})
+
+    def retrieve(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        job = self.get_object()
+        user = request.user
+
+        # COMPANY: can only see their own job
+        if user.role == UserRole.COMPANY:
+            try:
+                company = Company.objects.get(user=user)
+            except Company.DoesNotExist:
+                return Response({'detail': 'Company not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            if job.company_id != company.id:
+                return Response({'detail': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN)
+
+        # STUDENT: can see all jobs, but not expired ones
+        elif user.role == UserRole.STUDENT:
+            if job.deadline and job.deadline < timezone.now():
+                return Response({'detail': 'Job expired'}, status=status.HTTP_403_FORBIDDEN)
+
+        # (Optional) Other roles → restrict or allow
+        else:
+            return Response({'detail': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = self.get_serializer(job)
+        return Response(serializer.data)
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -36,10 +96,25 @@ class JobViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        self.perform_update(serializer)
 
-        # Return the updated data using the READ serializer
-        return Response(UpdateJobSerializer(instance).data)
+        return Response(RetrieveJobSerializer(instance).data)
+
+    def destroy(self, request, *args, **kwargs):
+        user = request.user
+
+        if not user.is_authenticated:
+            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        instance = self.get_object()
+
+        # ✅ Only owner company can delete
+        if user.role != UserRole.COMPANY or instance.company.user != user:
+            return Response({'detail': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN)
+
+        self.perform_destroy(instance)
+
+        return Response({'detail': 'Job deleted successfully'}, status=status.HTTP_200_OK)
 
 class ApplicationViewSet(viewsets.ModelViewSet):
     queryset = Application.objects.all()
