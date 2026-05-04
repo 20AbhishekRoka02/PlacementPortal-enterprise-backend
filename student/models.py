@@ -11,3 +11,38 @@ class Student(models.Model):
 
     def __str__(self):
         return self.user.email
+
+class SocialMediaChoices(models.TextChoices):
+    LINKEDIN = "linkedin", "LinkedIn"
+    GITHUB = "github", "GitHub"
+    TWITTER = "twitter", "Twitter"
+    INSTAGRAM = "instagram", "Instagram"
+    OTHER = "other", "Other"
+
+class Resume(models.Model):
+    student = models.OneToOneField(
+        'student.Student',
+        on_delete=models.CASCADE,
+        related_name='resume'
+    )
+
+    # Basic Info
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+
+    # JSON Sections
+    social_media = models.JSONField(default=list, blank=True)
+    education = models.JSONField(default=list, blank=True)
+    experience = models.JSONField(default=list, blank=True)
+    projects = models.JSONField(default=list, blank=True)
+
+    # Misc Section
+    misc_title = models.CharField(max_length=255, blank=True)
+    misc_description = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} Resume"
