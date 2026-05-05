@@ -13,18 +13,19 @@ def get_sidenav_items(request):
         {
             "name": "Job Postings",
             "screen_name": "job_postings",
-        },
-        {
-            "name": "My Applications",
-            "screen_name": "my_applications",
-        },
+        }
     ]
     if isinstance(request.user, User) and request.user.is_authenticated:
 
         if request.user.role == UserRole.STUDENT:
             sidemenuitems.append({
                 "name": "Resume Generator",
-                "screen_name": "Resume Generator",
+                "screen_name": "resume_generator",
+            })
+        elif request.user.role == UserRole.COMPANY:
+            sidemenuitems.append({
+                "name": "Applications",
+                "screen_name": "applications",
             })
 
         return Response({"sidenavitems": sidemenuitems}, status=status.HTTP_200_OK)

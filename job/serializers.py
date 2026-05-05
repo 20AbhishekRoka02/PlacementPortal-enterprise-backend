@@ -152,6 +152,7 @@ class ResumeSerializer(ModelSerializer):
     class Meta:
         model = Resume
         exclude = ['student', 'created_at', 'updated_at']
+        ref_name = 'JobResumeSerializer'  # Unique name for Swagger
 
 
 class StudentDetailSerializer(ModelSerializer):

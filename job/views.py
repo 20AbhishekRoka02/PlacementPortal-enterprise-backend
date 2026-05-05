@@ -35,6 +35,10 @@ class JobViewSet(viewsets.ModelViewSet):
         return serializer_classes.get(self.action)
 
     def get_queryset(self):
+        # Swagger fix
+        if getattr(self, 'swagger_fake_view', False):
+            return Job.objects.none()
+
         user = self.request.user
         if not user.is_authenticated:
             return Job.objects.none()
@@ -149,7 +153,14 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         return ApplicationDetailSerializer
 
     def get_queryset(self):
+        # Swagger fix
+        if getattr(self, 'swagger_fake_view', False):
+            return Application.objects.none()
+
         user = self.request.user
+
+        if not user.is_authenticated:
+            return Application.objects.none()
 
         # Student sees only own applications
         if user.role == 'student':

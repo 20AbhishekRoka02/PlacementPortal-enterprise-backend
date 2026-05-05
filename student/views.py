@@ -50,6 +50,14 @@ class ResumeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        # Swagger fix
+        if getattr(self, 'swagger_fake_view', False):
+            return Resume.objects.none()
+
+        user = self.request.user
+        if not user.is_authenticated:
+            return Resume.objects.none()
+
         return Resume.objects.filter(student__user=self.request.user)
 
     def get_object(self):

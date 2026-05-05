@@ -53,7 +53,7 @@ class ResumeSerializer(ModelSerializer):
     class Meta:
         model = Resume
         exclude = ['student', 'created_at', 'updated_at']
-
+        ref_name = 'StudentResumeSerializer'  # Unique name for Swagger
     # 🔥 Validate Social Media
     def validate_social_media(self, value):
         for item in value:
