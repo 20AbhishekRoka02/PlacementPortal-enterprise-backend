@@ -3,9 +3,23 @@ from .models import Student, Resume
 from rest_framework.permissions import IsAuthenticated
 from .serializers import ReadStudentSerializer, UpdateStudentSerializer, CreateStudentSerializer, ResumeSerializer
 from rest_framework.response import Response
-from users.models import User
+from users.models import User, UserRole
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
+from django.http import HttpResponse
+
 
 # Create your views here.
+@login_required
+def dashboard(request):
+    if request.user.is_authenticated:
+        if request.user.role == UserRole.STUDENT:
+            return render(request, 'student/dashboard.html')
+        return redirect('/admin/')
+    return redirect('/accounts/login/')
+
+
+# API Views
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
 

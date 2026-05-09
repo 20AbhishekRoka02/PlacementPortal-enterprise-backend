@@ -19,8 +19,40 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
-# Create your views here.
+from django.contrib.auth.decorators import login_required
 
+# Create your views here.
+@login_required
+def job_list(request):
+    if request.user.is_authenticated:
+        jobs = Job.objects.filter(
+        ).order_by('-posted_at')
+
+        return render(
+            request,
+            'jobs/list.html',
+            {
+                'jobs': jobs
+            }
+        )
+
+@login_required
+def job_detail(request, pk):
+    if request.user.is_authenticated:
+        job = get_object_or_404(
+            Job,
+            pk=pk
+        )
+
+        return render(
+            request,
+            'jobs/detail.html',
+            {
+                'job': job
+            }
+        )
+
+# API ViewSet
 class JobViewSet(viewsets.ModelViewSet):
     queryset = Job.objects.all()
 
