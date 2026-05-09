@@ -20,7 +20,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
-
+from django.shortcuts import redirect, render
+from django.contrib import messages
 # Create your views here.
 @login_required
 def job_list(request):
@@ -38,18 +39,81 @@ def job_list(request):
 
 @login_required
 def job_detail(request, pk):
+    already_applied = False
     if request.user.is_authenticated:
         job = get_object_or_404(
             Job,
             pk=pk
         )
+        
+        student = Student.objects.filter(
+            user = request.user
+        ).first()
+        
+        if student:
+            already_applied = Application.objects.filter(
+                student=student,
+                job=job
+            ).exists()
 
         return render(
             request,
             'jobs/detail.html',
             {
-                'job': job
+                'job': job,
+                'already_applied': already_applied
             }
+        )
+
+@login_required
+def apply_job(request, pk):
+    if request.user.is_authenticated:
+        # Only allow POST requests
+        if request.method != 'POST':
+            return redirect('job_detail', pk=pk)
+
+        job = get_object_or_404(
+            Job,
+            pk=pk,
+        )
+
+        student = get_object_or_404(
+            Student,
+            user=request.user
+        )
+
+        # Prevent duplicate applications
+        already_applied = Application.objects.filter(
+            student=student,
+            job=job
+        ).exists()
+
+        if already_applied:
+
+            messages.warning(
+                request,
+                "You already applied for this job."
+            )
+
+            return redirect(
+                'job_detail',
+                pk=pk
+            )
+
+        # Create application
+        Application.objects.create(
+            student=student,
+            job=job
+        )
+
+        messages.success(
+            request,
+            "Application submitted successfully."
+        )
+
+        return redirect(
+            'job_detail',
+            pk=pk
         )
 
 # API ViewSet

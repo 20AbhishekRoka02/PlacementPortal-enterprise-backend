@@ -25,3 +25,21 @@
 <div>
     {{ job.description|safe }}
 </div>
+
+{% if already_applied %}
+
+    <p>
+        Already Applied
+    </p>
+{% else %}
+<form method="post"
+      action="{% url 'apply_job' job.id %}">
+
+    {% csrf_token %}
+
+    <button type="submit">
+        Apply Now
+    </button>
+
+</form>
+{% endif %}
