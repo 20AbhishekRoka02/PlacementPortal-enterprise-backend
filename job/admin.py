@@ -26,6 +26,13 @@ class JobAdmin(admin.ModelAdmin):
         if request.user.is_authenticated:
             return request.user.role in [UserRole.ADMIN, UserRole.UNIVERSITY, UserRole.COMPANY]
 
+    def get_exclude(self, request, obj=None):
+        if request.user.is_authenticated:
+            if request.user.role == UserRole.COMPANY:
+                return ("company",)
+
+        return ()
+
     # FILTER DATA
     def get_queryset(self, request):
         if request.user.is_authenticated:
@@ -42,6 +49,13 @@ class JobAdmin(admin.ModelAdmin):
                 return qs.filter(company=request.user.company_profile)
 
             return qs.none()
+
+    def save_model(self, request, obj, form, change):
+        if request.user.is_authenticated:
+            if request.user.role == UserRole.COMPANY:
+                obj.company = request.user.company_profile
+
+            super().save_model(request, obj, form, change)
 
 admin.site.register(Job, JobAdmin)
 admin.site.register(Skill)
