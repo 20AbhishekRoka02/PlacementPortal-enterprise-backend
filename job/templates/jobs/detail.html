@@ -1,45 +1,781 @@
-<h1>{{ job.title }}</h1>
+{% load static %}
 
-<p>
-    {{ job.company }}
-</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<p>
-    {{ job.location }}
-</p>
+    <title>{{ job.title }} • Placement Portal</title>
 
-<p>
-    Salary:
-    {{ job.salary }}
-</p>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-<p>
-    Deadline:
-    {{ job.deadline }}
-</p>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-<hr>
+    <style>
 
-<h2>Job Description</h2>
+        :root{
+            --bg:#020617;
+            --bg-secondary:#0f172a;
+            --card:rgba(255,255,255,0.06);
+            --card-border:rgba(255,255,255,0.08);
 
-<div>
-    {{ job.description|safe }}
-</div>
+            --text:#ffffff;
+            --muted:rgba(255,255,255,0.68);
 
-{% if already_applied %}
+            --purple:#8b5cf6;
+            --cyan:#06b6d4;
 
-    <p>
-        Already Applied
-    </p>
-{% else %}
-<form method="post"
-      action="{% url 'apply_job' job.id %}">
+            --green:#22c55e;
+            --orange:#f59e0b;
+            --red:#ef4444;
 
-    {% csrf_token %}
+            --shadow:0 20px 60px rgba(0,0,0,0.45);
+        }
 
-    <button type="submit">
-        Apply Now
-    </button>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Inter',sans-serif;
+        }
 
-</form>
-{% endif %}
+        body{
+            min-height:100vh;
+            background:
+                radial-gradient(circle at top left, rgba(139,92,246,0.22) 0%, transparent 28%),
+                radial-gradient(circle at bottom right, rgba(6,182,212,0.18) 0%, transparent 28%),
+                linear-gradient(135deg,#020617,#0f172a);
+            color:var(--text);
+            overflow-x:hidden;
+        }
+
+        a{
+            text-decoration:none;
+        }
+
+        .orb{
+            position:fixed;
+            border-radius:50%;
+            filter:blur(100px);
+            opacity:0.35;
+            z-index:0;
+            animation:float 8s ease-in-out infinite;
+        }
+
+        .orb1{
+            width:280px;
+            height:280px;
+            background:#8b5cf6;
+            top:-100px;
+            left:-100px;
+        }
+
+        .orb2{
+            width:240px;
+            height:240px;
+            background:#06b6d4;
+            bottom:-100px;
+            right:-100px;
+            animation-delay:2s;
+        }
+
+        @keyframes float{
+            0%,100%{
+                transform:translateY(0px);
+            }
+            50%{
+                transform:translateY(-20px);
+            }
+        }
+
+        .container{
+            width:min(1180px,92%);
+            margin:auto;
+            position:relative;
+            z-index:2;
+        }
+
+        /* ───────────── NAVBAR ───────────── */
+
+        .navbar{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:26px 0;
+        }
+
+        .brand{
+            display:flex;
+            align-items:center;
+            gap:14px;
+        }
+
+        .brand-logo{
+            width:52px;
+            height:52px;
+            border-radius:18px;
+            background:linear-gradient(135deg,var(--purple),var(--cyan));
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:22px;
+            box-shadow:0 10px 25px rgba(139,92,246,0.35);
+        }
+
+        .brand-text h2{
+            font-size:20px;
+            font-weight:800;
+            letter-spacing:-0.5px;
+        }
+
+        .brand-text p{
+            font-size:13px;
+            color:var(--muted);
+            margin-top:2px;
+        }
+
+        .nav-actions{
+            display:flex;
+            align-items:center;
+            gap:14px;
+        }
+
+        .nav-btn{
+            padding:12px 18px;
+            border-radius:14px;
+            background:rgba(255,255,255,0.06);
+            border:1px solid rgba(255,255,255,0.08);
+            color:white;
+            font-size:14px;
+            font-weight:600;
+            transition:0.3s ease;
+        }
+
+        .nav-btn:hover{
+            transform:translateY(-2px);
+            background:rgba(255,255,255,0.1);
+        }
+
+        .nav-btn.primary{
+            background:linear-gradient(135deg,var(--purple),var(--cyan));
+            border:none;
+            box-shadow:0 10px 25px rgba(139,92,246,0.35);
+        }
+
+        /* ───────────── HERO ───────────── */
+
+        .hero{
+            margin-top:18px;
+            padding:44px;
+            border-radius:32px;
+            background:rgba(255,255,255,0.06);
+            border:1px solid rgba(255,255,255,0.08);
+            backdrop-filter:blur(18px);
+            -webkit-backdrop-filter:blur(18px);
+            box-shadow:var(--shadow);
+
+            display:flex;
+            justify-content:space-between;
+            gap:30px;
+            align-items:flex-start;
+            position:relative;
+            overflow:hidden;
+        }
+
+        .hero::before{
+            content:'';
+            position:absolute;
+            width:280px;
+            height:280px;
+            border-radius:50%;
+            background:radial-gradient(circle, rgba(139,92,246,0.18), transparent 70%);
+            top:-100px;
+            right:-80px;
+        }
+
+        .hero-left{
+            position:relative;
+            z-index:2;
+            flex:1;
+        }
+
+        .badge{
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            padding:10px 16px;
+            border-radius:999px;
+            background:rgba(139,92,246,0.12);
+            border:1px solid rgba(139,92,246,0.18);
+            color:#d8b4fe;
+            font-size:13px;
+            font-weight:600;
+            margin-bottom:20px;
+        }
+
+        .job-title{
+            font-size:clamp(32px,5vw,52px);
+            line-height:1.05;
+            font-weight:800;
+            letter-spacing:-2px;
+            margin-bottom:18px;
+        }
+
+        .hero-subtitle{
+            font-size:16px;
+            color:var(--muted);
+            line-height:1.8;
+            max-width:720px;
+        }
+
+        .job-meta{
+            display:flex;
+            flex-wrap:wrap;
+            gap:14px;
+            margin-top:28px;
+        }
+
+        .meta-card{
+            padding:14px 18px;
+            border-radius:18px;
+            background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.06);
+            min-width:170px;
+        }
+
+        .meta-label{
+            font-size:12px;
+            text-transform:uppercase;
+            letter-spacing:1px;
+            color:rgba(255,255,255,0.45);
+            margin-bottom:8px;
+        }
+
+        .meta-value{
+            font-size:15px;
+            font-weight:700;
+            color:white;
+        }
+
+        .hero-right{
+            width:300px;
+            position:relative;
+            z-index:2;
+        }
+
+        .company-card{
+            padding:26px;
+            border-radius:28px;
+            background:rgba(255,255,255,0.06);
+            border:1px solid rgba(255,255,255,0.08);
+        }
+
+        .company-logo{
+            width:72px;
+            height:72px;
+            border-radius:22px;
+            background:linear-gradient(135deg,var(--purple),var(--cyan));
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:30px;
+            margin-bottom:22px;
+            box-shadow:0 14px 30px rgba(139,92,246,0.35);
+        }
+
+        .company-name{
+            font-size:24px;
+            font-weight:800;
+            margin-bottom:10px;
+        }
+
+        .company-desc{
+            color:var(--muted);
+            font-size:14px;
+            line-height:1.7;
+            margin-bottom:24px;
+        }
+
+        .company-tags{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+        }
+
+        .tag{
+            padding:10px 14px;
+            border-radius:14px;
+            background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.08);
+            font-size:13px;
+            font-weight:600;
+            color:#d1d5db;
+        }
+
+        /* ───────────── CONTENT ───────────── */
+
+        .main-grid{
+            margin-top:32px;
+            display:grid;
+            grid-template-columns:1fr 340px;
+            gap:28px;
+            align-items:start;
+        }
+
+        .content-card{
+            background:rgba(255,255,255,0.06);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:30px;
+            padding:36px;
+            backdrop-filter:blur(18px);
+            -webkit-backdrop-filter:blur(18px);
+            box-shadow:var(--shadow);
+        }
+
+        .section-title{
+            font-size:28px;
+            font-weight:800;
+            margin-bottom:26px;
+            letter-spacing:-1px;
+        }
+
+        .job-description{
+            color:#d6d6e0;
+            line-height:1.9;
+            font-size:15px;
+        }
+
+        .job-description h1,
+        .job-description h2,
+        .job-description h3{
+            margin-top:28px;
+            margin-bottom:14px;
+            color:white;
+        }
+
+        .job-description ul,
+        .job-description ol{
+            padding-left:24px;
+            margin:16px 0;
+        }
+
+        .job-description p{
+            margin-bottom:16px;
+        }
+
+        .job-description strong{
+            color:white;
+        }
+
+        /* ───────────── SIDEBAR ───────────── */
+
+        .sidebar-stack{
+            display:flex;
+            flex-direction:column;
+            gap:24px;
+            position:sticky;
+            top:24px;
+        }
+
+        .apply-card{
+            background:rgba(255,255,255,0.06);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:30px;
+            padding:30px;
+            backdrop-filter:blur(18px);
+            -webkit-backdrop-filter:blur(18px);
+            box-shadow:var(--shadow);
+        }
+
+        .apply-title{
+            font-size:24px;
+            font-weight:800;
+            margin-bottom:14px;
+        }
+
+        .apply-subtitle{
+            color:var(--muted);
+            font-size:14px;
+            line-height:1.7;
+            margin-bottom:24px;
+        }
+
+        .apply-btn{
+            width:100%;
+            padding:18px;
+            border:none;
+            border-radius:18px;
+            background:linear-gradient(135deg,var(--purple),var(--cyan));
+            color:white;
+            font-size:16px;
+            font-weight:700;
+            cursor:pointer;
+            transition:0.35s ease;
+            box-shadow:0 12px 28px rgba(139,92,246,0.35);
+        }
+
+        .apply-btn:hover{
+            transform:translateY(-3px);
+            box-shadow:0 18px 36px rgba(139,92,246,0.45);
+        }
+
+        .applied-box{
+            width:100%;
+            padding:18px;
+            border-radius:18px;
+            background:rgba(34,197,94,0.12);
+            border:1px solid rgba(34,197,94,0.2);
+            color:#86efac;
+            font-weight:700;
+            text-align:center;
+            font-size:15px;
+        }
+
+        .mini-card{
+            padding:24px;
+            border-radius:24px;
+            background:rgba(255,255,255,0.06);
+            border:1px solid rgba(255,255,255,0.08);
+        }
+
+        .mini-card h3{
+            font-size:18px;
+            margin-bottom:18px;
+        }
+
+        .info-row{
+            display:flex;
+            justify-content:space-between;
+            gap:18px;
+            padding:14px 0;
+            border-bottom:1px solid rgba(255,255,255,0.06);
+        }
+
+        .info-row:last-child{
+            border-bottom:none;
+            padding-bottom:0;
+        }
+
+        .info-label{
+            color:rgba(255,255,255,0.55);
+            font-size:14px;
+        }
+
+        .info-value{
+            color:white;
+            font-size:14px;
+            font-weight:600;
+            text-align:right;
+        }
+
+        /* ───────────── RESPONSIVE ───────────── */
+
+        @media(max-width:1000px){
+
+            .hero{
+                flex-direction:column;
+            }
+
+            .hero-right{
+                width:100%;
+            }
+
+            .main-grid{
+                grid-template-columns:1fr;
+            }
+
+            .sidebar-stack{
+                position:relative;
+                top:0;
+            }
+        }
+
+        @media(max-width:700px){
+
+            .navbar{
+                flex-direction:column;
+                align-items:flex-start;
+                gap:18px;
+            }
+
+            .nav-actions{
+                width:100%;
+            }
+
+            .nav-btn{
+                flex:1;
+                text-align:center;
+            }
+
+            .hero{
+                padding:28px;
+            }
+
+            .content-card,
+            .apply-card{
+                padding:26px;
+            }
+
+            .job-title{
+                font-size:36px;
+            }
+
+            .job-meta{
+                flex-direction:column;
+            }
+
+            .meta-card{
+                width:100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+
+    <div class="container">
+
+        <!-- NAVBAR -->
+
+        <nav class="navbar">
+
+            <div class="brand">
+
+                <div class="brand-logo">
+                    🚀
+                </div>
+
+                <div class="brand-text">
+                    <h2>Placement Portal</h2>
+                    <p>Student Career Platform</p>
+                </div>
+
+            </div>
+
+            <div class="nav-actions">
+
+                <a href="{% url 'job_list' %}" class="nav-btn">
+                    ← Back to Jobs
+                </a>
+
+                <a href="/student/dashboard/" class="nav-btn primary">
+                    Dashboard
+                </a>
+
+            </div>
+
+        </nav>
+
+        <!-- HERO -->
+
+        <section class="hero">
+
+            <div class="hero-left">
+
+                <div class="badge">
+                    ✨ New Opportunity
+                </div>
+
+                <h1 class="job-title">
+                    {{ job.title }}
+                </h1>
+
+                <p class="hero-subtitle">
+                    Explore this opportunity and take the next step toward building your future career. Make your application stand out and connect with companies actively hiring talented students.
+                </p>
+
+                <div class="job-meta">
+
+                    <div class="meta-card">
+                        <div class="meta-label">
+                            Company
+                        </div>
+                        <div class="meta-value">
+                            {{ job.company }}
+                        </div>
+                    </div>
+
+                    <div class="meta-card">
+                        <div class="meta-label">
+                            Location
+                        </div>
+                        <div class="meta-value">
+                            {{ job.location }}
+                        </div>
+                    </div>
+
+                    <div class="meta-card">
+                        <div class="meta-label">
+                            Salary
+                        </div>
+                        <div class="meta-value">
+                            {{ job.salary }}
+                        </div>
+                    </div>
+
+                    <div class="meta-card">
+                        <div class="meta-label">
+                            Deadline
+                        </div>
+                        <div class="meta-value">
+                            {{ job.deadline }}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="hero-right">
+
+                <div class="company-card">
+
+                    <div class="company-logo">
+                        🏢
+                    </div>
+
+                    <div class="company-name">
+                        {{ job.company }}
+                    </div>
+
+                    <div class="company-desc">
+                        Join a fast-growing company looking for passionate and skilled students ready to build impactful products and technologies.
+                    </div>
+
+                    <div class="company-tags">
+
+                        <div class="tag">
+                            Hiring
+                        </div>
+
+                        <div class="tag">
+                            Campus Drive
+                        </div>
+
+                        <div class="tag">
+                            Tech Role
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- MAIN CONTENT -->
+
+        <section class="main-grid">
+
+            <!-- LEFT -->
+
+            <div class="content-card">
+
+                <h2 class="section-title">
+                    Job Description
+                </h2>
+
+                <div class="job-description">
+                    {{ job.description|safe }}
+                </div>
+
+            </div>
+
+            <!-- RIGHT -->
+
+            <div class="sidebar-stack">
+
+                <div class="apply-card">
+
+                    <h2 class="apply-title">
+                        Ready to Apply?
+                    </h2>
+
+                    <p class="apply-subtitle">
+                        Submit your application and start your journey toward landing this opportunity.
+                    </p>
+
+                    {% if already_applied %}
+
+                        <div class="applied-box">
+                            ✅ Already Applied
+                        </div>
+
+                    {% else %}
+
+                        <form method="post"
+                              action="{% url 'apply_job' job.id %}">
+
+                            {% csrf_token %}
+
+                            <button type="submit"
+                                    class="apply-btn">
+
+                                Apply Now 🚀
+
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+                </div>
+
+                <div class="mini-card">
+
+                    <h3>
+                        Quick Info
+                    </h3>
+
+                    <div class="info-row">
+                        <div class="info-label">
+                            Employment Type
+                        </div>
+                        <div class="info-value">
+                            Full Time
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">
+                            Experience
+                        </div>
+                        <div class="info-value">
+                            Fresher
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">
+                            Work Mode
+                        </div>
+                        <div class="info-value">
+                            Hybrid
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">
+                            Last Date
+                        </div>
+                        <div class="info-value">
+                            {{ job.deadline }}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</body>
+</html>
