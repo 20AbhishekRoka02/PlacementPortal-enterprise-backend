@@ -502,6 +502,164 @@
             }
         }
 
+        /* -------------- Resume related ----------------- */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        /* ── Resume Card ── */
+  .resume {
+    background: #fff;
+    width: 100%;
+    max-width: 820px;
+    padding: 48px 52px;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.10);
+    color: #1a1a1a;
+    line-height: 1.45;
+    
+  }
+ 
+  /* ── Header ── */
+  .resume-header {
+    text-align: center;
+    border-bottom: 2px solid #1a1a1a;
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+  }
+  .resume-header h1 {
+    font-family: 'EB Garamond', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .resume-contacts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 18px;
+    margin-top: 8px;
+    font-size: 0.82rem;
+    color: #333;
+  }
+  .resume-contacts a {
+    color: #333;
+    text-decoration: none;
+  }
+  .resume-contacts a:hover { text-decoration: underline; }
+  .resume-contacts span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .resume-contacts .sep { color: #aaa; }
+ 
+  /* ── Sections ── */
+  .resume-section {
+    margin-top: 16px;
+  }
+  .section-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-bottom: 1.5px solid #1a1a1a;
+    padding-bottom: 3px;
+    margin-bottom: 10px;
+  }
+ 
+  /* ── Entries ── */
+  .entry {
+    margin-bottom: 10px;
+  }
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .entry-left { display: flex; flex-direction: column; }
+  .entry-right { display: flex; flex-direction: column; align-items: flex-end; }
+ 
+  .entry-org {
+    font-size: 0.92rem;
+    font-weight: 700;
+  }
+  .entry-role {
+    font-size: 0.88rem;
+    font-style: italic;
+    color: #222;
+    font-weight: 600;
+  }
+  .entry-date {
+    font-size: 0.82rem;
+    color: #444;
+    white-space: nowrap;
+  }
+  .entry-location {
+    font-size: 0.78rem;
+    color: #666;
+    text-align: right;
+  }
+  .entry-degree {
+    font-size: 0.82rem;
+    color: #555;
+  }
+ 
+  .entry-bullets {
+    list-style: disc;
+    padding-left: 18px;
+    margin-top: 5px;
+  }
+  .entry-bullets li {
+    font-size: 0.82rem;
+    color: #222;
+    margin-bottom: 3px;
+    line-height: 1.5;
+  }
+  .entry-bullets li a {
+    color: #1a1a1a;
+  }
+ 
+  /* project skills tags */
+  .skills-inline {
+    font-size: 0.78rem;
+    color: #555;
+    margin-top: 3px;
+  }
+  .skills-inline strong { color: #222; }
+ 
+  /* misc */
+  .misc-content {
+    font-size: 0.82rem;
+    color: #222;
+    margin-top: 4px;
+    line-height: 1.6;
+  }
+  .misc-content p { margin-bottom: 4px; }
+ 
+  /* ── Skills Section ── */
+  .skills-table {
+    font-size: 0.82rem;
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .skills-table td {
+    padding: 2px 0;
+    vertical-align: top;
+  }
+  .skills-table td:first-child {
+    font-weight: 700;
+    white-space: nowrap;
+    padding-right: 10px;
+    width: 1%;
+  }
+
+  @media (max-width: 600px) {
+    .resume { padding: 28px 20px; }
+    .entry-header { flex-direction: column; }
+    .entry-right { align-items: flex-start; }
+  }
+
     </style>
 
 </head>
@@ -538,6 +696,16 @@
                 <a href="/student/jobs/" class="nav-btn primary">
                     Browse Jobs
                 </a>
+
+                <!-- NEW: Download -->
+                <button class="nav-btn primary" id="resume-download">
+                    ⬇ Download
+                </button>
+
+                <!-- NEW: Delete -->
+                <button class="nav-btn" id="resume-delete" style="border:1px solid rgba(239,68,68,0.4); color:#fca5a5;">
+                    🗑 Delete
+                </button>
 
             </div>
 
@@ -968,6 +1136,9 @@
                 </form>
 
             </div>
+            <div id="action-buttons">
+
+            </div>
 
             <!-- SIDEBAR -->
 
@@ -1062,6 +1233,266 @@
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const res = await fetch("/student/get-resume", {
+                    method: "GET",
+                    credentials: "include"
+                });
+
+                if (res.status === 200) {
+                    const data = await res.json();
+                    showResume(data);
+                } else if (res.status === 404) {
+                    document.getElementById("resume-form").style.display = "block";
+                }
+            } catch (err) {
+                console.error("Error fetching resume:", err);
+            }
+        });
+
+        function showResume(data) {
+            
+            const container = document.querySelector(".form-card");
+            localStorage.setItem('resumeId', data.id);
+            
+            /* ── helpers ── */
+            const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            
+            // Strip basic HTML tags for plain-text contexts (we allow p tags via innerHTML)
+            const safeHTML = s => s ?? '';
+            
+            // Format date range
+            const dateRange = (start, end) => {
+                const s = esc(start ?? '');
+                const e = esc(end ?? '');
+                if (!s && !e) return '';
+                if (!e || e.toLowerCase() === 'present') return s ? `${s} – Present` : 'Present';
+                return `${s} – ${e}`;
+            };
+            
+            /* ── Contacts row ── */
+            const contacts = [];
+            if (data.phone)  contacts.push(`<span>📞 ${esc(data.phone)}</span>`);
+            if (data.email)  contacts.push(`<span>✉ ${esc(data.email)}</span>`);
+            (data.social_media ?? []).forEach(s => {
+                contacts.push(`<span><a href="${esc(s.url)}" target="_blank">${esc(s.name)}: ${esc(s.username)}</a></span>`);
+            });
+            
+            /* ── Education ── */
+            const educationHTML = (data.education ?? []).map(ed => `
+                <div class="entry">
+                <div class="entry-header">
+                    <div class="entry-left">
+                    <span class="entry-org">${esc(ed.institution)}</span>
+                    <span class="entry-degree">${esc(ed.qualification)}</span>
+                    </div>
+                    <div class="entry-right">
+                    <span class="entry-date">${dateRange(ed.start_year, ed.end_year)}</span>
+                    <span class="entry-location">${esc(ed.location)}</span>
+                    </div>
+                </div>
+                </div>
+            `).join('');
+            
+            /* ── Experience ── */
+            const experienceHTML = (data.experience ?? []).map(ex => `
+                <div class="entry">
+                <div class="entry-header">
+                    <div class="entry-left">
+                    <span class="entry-org">${esc(ex.company)}</span>
+                    <span class="entry-role">${esc(ex.role)}</span>
+                    </div>
+                    <div class="entry-right">
+                    <span class="entry-date">${dateRange(ex.start, ex.end)}</span>
+                    <span class="entry-location">${esc(ex.location)}</span>
+                    </div>
+                </div>
+                ${ex.description ? `<ul class="entry-bullets"><li class="misc-content">${safeHTML(ex.description)}</li></ul>` : ''}
+                </div>
+            `).join('');
+            
+            /* ── Projects ── */
+            const projectsHTML = (data.projects ?? []).map(pr => {
+                const skillsStr = (pr.skills ?? []).map(esc).join(', ');
+                const titlePart = pr.link
+                ? `<a href="${esc(pr.link)}" target="_blank">${esc(pr.name)}</a>`
+                : esc(pr.name);
+                return `
+                <div class="entry">
+                    <div class="entry-header">
+                    <div class="entry-left">
+                        <span class="entry-org">${titlePart}${skillsStr ? ` <span style="font-weight:400;font-size:0.8rem;color:#555;">| ${skillsStr}</span>` : ''}</span>
+                    </div>
+                    <div class="entry-right">
+                        <span class="entry-date">${dateRange(pr.start, pr.end)}</span>
+                    </div>
+                    </div>
+                    ${pr.description ? `<ul class="entry-bullets"><li class="misc-content">${safeHTML(pr.description)}</li></ul>` : ''}
+                </div>
+                `;
+            }).join('');
+            
+            /* ── Misc / Achievements ── */
+            const miscHTML = (data.misc_title || data.misc_description) ? `
+                <div class="resume-section">
+                <div class="section-title">${esc(data.misc_title || 'Achievements')}</div>
+                <div class="misc-content">${safeHTML(data.misc_description)}</div>
+                </div>
+            ` : '';
+            
+            /* ── Full render ── */
+            container.innerHTML = `
+                <div class="resume">
+            
+                <div class="resume-header">
+                    <h1>${esc(data.name)}</h1>
+                    <div class="resume-contacts">
+                    ${contacts.join('<span class="sep">|</span>')}
+                    </div>
+                </div>
+            
+                ${educationHTML ? `
+                <div class="resume-section">
+                    <div class="section-title">Education</div>
+                    ${educationHTML}
+                </div>` : ''}
+            
+                ${experienceHTML ? `
+                <div class="resume-section">
+                    <div class="section-title">Experience</div>
+                    ${experienceHTML}
+                </div>` : ''}
+            
+                ${projectsHTML ? `
+                <div class="resume-section">
+                    <div class="section-title">Projects</div>
+                    ${projectsHTML}
+                </div>` : ''}
+            
+                ${miscHTML}
+            
+                </div>
+            `;
+            }
+
+
+        
+            document.getElementById("resume-download").addEventListener("click", downloadResume);
+
+            /* ── Download only .form-card contents as PDF ── */
+            function downloadResume() {
+            const resumeHTML = document.querySelector('.form-card').innerHTML;
+            
+            // Collect all <style> and <link rel="stylesheet"> tags from the current page
+            const styles = [...document.querySelectorAll('style, link[rel="stylesheet"]')]
+                .map(el => el.outerHTML)
+                .join('\n');
+            
+            const printWindow = window.open('', '_blank', 'width=900,height=700');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8"/>
+                    <title>Resume</title>
+                    ${styles}
+                    <style>
+                    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+                    body { background: #fff; padding: 0; margin: 0; }
+                    .resume {
+                        box-shadow: none !important;
+                        max-width: 100% !important;
+                        width: 100% !important;
+                        padding: 40px 48px !important;
+                    }
+                    @media print {
+                        body { margin: 0; padding: 0; }
+                        .resume { box-shadow: none !important; padding: 32px 40px !important; }
+                    }
+                    </style>
+                </head>
+                <body>
+                    ${resumeHTML}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            
+            // Wait for fonts/stylesheets to load before printing
+            printWindow.onload = () => {
+                printWindow.focus();
+                printWindow.print();
+                printWindow.close();
+            };
+            }
+        
+            function downloadResume1() {
+                const resume = document.querySelector(".resume");
+
+                if (!resume) {
+                    alert("Please generate resume first!");
+                    return;
+                }
+
+                const printWindow = window.open("", "_blank");
+
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Resume</title>
+                        <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                padding: 20px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${resume.outerHTML}
+                    </body>
+                    </html>
+                `);
+
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.print();
+            }
+
+
+            
+            document.getElementById("resume-delete").addEventListener("click", deleteResume);
+        async function deleteResume() {
+            const id = localStorage.getItem('resumeId');
+            if (!confirm("Are you sure you want to delete your resume?")) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`/student/resume/${id}/`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRFToken": getCookie("csrftoken")
+                    },
+                    credentials: "include"
+                });
+
+                if (res.status === 200 || res.status === 204) {
+                    alert("Resume deleted successfully!");
+
+                    // Reset UI
+                    document.querySelector(".form-card").style.display = "block";
+                    document.querySelector(".resume")?.remove();
+                } else {
+                    alert("Failed to delete resume");
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Error deleting resume");
+            }
+        }
+        /*
         const form = document.getElementById("resume-form");
 
         form.addEventListener("submit", async function (e) {
@@ -1163,8 +1594,134 @@
             const resdata = await res.json();
             console.log(resdata);
 
-        });
+        });*/
 
+        const form = document.getElementById("resume-form");
+
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            // ── Helper: extract username from a URL (last non-empty path segment)
+            function extractUsername(url) {
+                try {
+                    const parts = new URL(url).pathname.split('/').filter(Boolean);
+                    return parts[parts.length - 1] || url;
+                } catch {
+                    return url;
+                }
+            }
+
+            // ---------------- SOCIAL MEDIA ----------------
+            const socialPlatforms = form.querySelectorAll('input[name="social_platform[]"]');
+            const socialUrls      = form.querySelectorAll('input[name="social_url[]"]');
+
+            const social_media = [];
+            socialPlatforms.forEach((input, i) => {
+                const platform = input.value.trim();
+                const url      = socialUrls[i]?.value.trim();
+                if (platform || url) {
+                    social_media.push({
+                        name:     platform.toLowerCase(),   // e.g. "linkedin", "github"
+                        url:      url,
+                        username: extractUsername(url)       // e.g. "amitkumar"
+                    });
+                }
+            });
+
+            // ---------------- EDUCATION ----------------
+            const eduInstitute = form.querySelectorAll('input[name="education_institute[]"]');
+            const eduDegree    = form.querySelectorAll('input[name="education_degree[]"]');
+            const eduStart     = form.querySelectorAll('input[name="education_start[]"]');
+            const eduEnd       = form.querySelectorAll('input[name="education_end[]"]');
+            const eduLocation  = form.querySelectorAll('input[name="education_location[]"]'); // add this field to your form
+
+            const education = [];
+            eduInstitute.forEach((input, i) => {
+                if (input.value || eduDegree[i]?.value) {
+                    education.push({
+                        institution: input.value.trim(),
+                        qualification: eduDegree[i]?.value.trim(),
+                        start_year:  eduStart[i]?.value.trim(),
+                        end_year:    eduEnd[i]?.value.trim(),
+                        location:    eduLocation[i]?.value.trim() || ""
+                    });
+                }
+            });
+
+            // ---------------- EXPERIENCE ----------------
+            const expCompany  = form.querySelectorAll('input[name="experience_company[]"]');
+            const expRole     = form.querySelectorAll('input[name="experience_role[]"]');
+            const expStart    = form.querySelectorAll('input[name="experience_start[]"]');   // add to form
+            const expEnd      = form.querySelectorAll('input[name="experience_end[]"]');     // add to form
+            const expLocation = form.querySelectorAll('input[name="experience_location[]"]'); // add to form
+            const expDesc     = form.querySelectorAll('textarea[name="experience_description[]"]');
+
+            const experience = [];
+            expCompany.forEach((input, i) => {
+                if (input.value || expRole[i]?.value) {
+                    experience.push({
+                        company:     input.value.trim(),
+                        role:        expRole[i]?.value.trim(),
+                        start:       expStart[i]?.value.trim()    || "",
+                        end:         expEnd[i]?.value.trim()      || "Present",
+                        location:    expLocation[i]?.value.trim() || "",
+                        description: expDesc[i]?.value.trim()     || ""
+                    });
+                }
+            });
+
+            // ---------------- PROJECTS ----------------
+            const projName   = form.querySelectorAll('input[name="project_name[]"]');
+            const projLink   = form.querySelectorAll('input[name="project_link[]"]');
+            const projStart  = form.querySelectorAll('input[name="project_start[]"]');  // add to form
+            const projEnd    = form.querySelectorAll('input[name="project_end[]"]');    // add to form
+            const projSkills = form.querySelectorAll('input[name="project_skills[]"]'); // add to form (comma-separated)
+            const projDesc   = form.querySelectorAll('textarea[name="project_description[]"]');
+
+            const projects = [];
+            projName.forEach((input, i) => {
+                if (input.value || projLink[i]?.value) {
+                    projects.push({
+                        name:        input.value.trim(),
+                        link:        projLink[i]?.value.trim()  || "",
+                        start:       projStart[i]?.value.trim() || "",
+                        end:         projEnd[i]?.value.trim()   || "Present",
+                        skills:      (projSkills[i]?.value || "").split(',').map(s => s.trim()).filter(Boolean),
+                        description: projDesc[i]?.value.trim()  || ""
+                    });
+                }
+            });
+
+            // ---------------- FINAL PAYLOAD ----------------
+            const data = {
+                name:             form.name.value.trim(),
+                email:            form.email.value.trim(),
+                phone:            form.phone.value.trim(),
+                social_media,
+                education,
+                experience,
+                projects,
+                misc_title:       form.misc_title.value.trim(),
+                misc_description: form.misc_description.value.trim()
+            };
+
+            console.log("🔥 FINAL JSON PAYLOAD:", JSON.stringify(data, null, 2));
+
+            const csrfToken = getCookie("csrftoken");
+
+            const res = await fetch("/student/resume/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+                credentials: "include",
+                body: JSON.stringify(data)
+            });
+
+            const resdata = await res.json();
+            console.log(resdata);
+        });
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {

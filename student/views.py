@@ -7,7 +7,7 @@ from users.models import User, UserRole
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
-
+from rest_framework.decorators import api_view
 
 # Create your views here.
 @login_required
@@ -27,8 +27,21 @@ def resume(request):
         return redirect('/admin/')
     return redirect('/accounts/login/')
 
-
 # API Views
+@api_view(['GET'])
+def get_resume(request):
+    if isinstance(request.user, User) and request.user.is_authenticated and request.user.role == UserRole.STUDENT:
+        print("user: ", request.user.pk)
+        resume = Resume.objects.filter(student = request.user.student_profile).first()
+
+        if resume:
+            resume_data = ResumeSerializer(resume)
+            print(resume_data.data)
+            return Response(resume_data.data, status=status.HTTP_200_OK)
+        return Response({"detail": "Resume not found"},status=status.HTTP_404_NOT_FOUND)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
 
@@ -139,9 +152,13 @@ class ResumeViewSet(viewsets.ModelViewSet):
 
     # ✅ Delete
     def destroy(self, request, *args, **kwargs):
-        resume = self.get_object()
-        resume.delete()
-        return Response(
-            {"detail": "Resume deleted successfully"},
-            status=status.HTTP_200_OK
-        )
+        if request.user.is_authenticated:
+            resume = self.get_object()
+            if resume.student == request.user.student_profile:
+                resume.delete()
+                return Response(
+                    {"detail": "Resume deleted successfully"},
+                    status=status.HTTP_200_OK
+                )
+            return Response({"detail": "Resume not found"}, status = status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)

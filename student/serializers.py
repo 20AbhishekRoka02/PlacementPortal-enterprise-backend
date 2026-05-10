@@ -49,6 +49,7 @@ class CreateStudentSerializer(ModelSerializer):
         }
 
 class ResumeSerializer(ModelSerializer):
+    # student = ReadStudentSerializer(read_only=True)
 
     class Meta:
         model = Resume
