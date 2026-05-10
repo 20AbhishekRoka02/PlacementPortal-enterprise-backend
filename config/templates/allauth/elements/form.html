@@ -1,0 +1,16 @@
+{% load allauth %}
+
+<form
+    method="{{ attrs.method }}"
+    action="{{ attrs.action }}"
+>
+
+    {% slot body %}
+    {% endslot %}
+
+    <div style="margin-top:20px;">
+        {% slot actions %}
+        {% endslot %}
+    </div>
+
+</form>

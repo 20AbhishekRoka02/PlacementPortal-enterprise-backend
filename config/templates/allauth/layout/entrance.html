@@ -1,0 +1,36 @@
+{% extends "allauth/layouts/base.html" %}
+
+{% block body %}
+
+<style>
+
+    .auth-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: linear-gradient(to right, #1e3a8a, #2563eb);
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 450px;
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+
+</style>
+
+<div class="auth-page">
+
+    <div class="auth-card">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+</div>
+
+{% endblock %}

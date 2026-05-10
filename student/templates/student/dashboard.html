@@ -1,7 +1,1018 @@
-<h1>Student Dashboard</h1>
+{% comment %} <h1>Student Dashboard</h1>
 
 <p>Welcome {{ request.user.email }}</p>
 
 <a href="/accounts/logout/">
     Logout
-</a>
+</a> {% endcomment %}
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Dashboard — PlacementHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- Fallback for Clash Display / Cabinet Grotesk if not available via Google -->
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=cabinet-grotesk@300,400,500,700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Variables ─────────────────────────────────────────── */
+    :root {
+      --bg:           #f5f4f0;
+      --surface:      #ffffff;
+      --sidebar-bg:   #0f1117;
+      --sidebar-w:    260px;
+      --accent:       #e8ff47;
+      --accent-dark:  #c8df20;
+      --text:         #0f1117;
+      --muted:        #8a8a9a;
+      --border:       #e8e8e4;
+      --radius:       16px;
+      --font-head:    'Clash Display', 'Cabinet Grotesk', sans-serif;
+      --font-body:    'Cabinet Grotesk', sans-serif;
+      --transition:   0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Layout Shell ──────────────────────────────────────── */
+    .shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ───────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 16px;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+      transition: transform var(--transition);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 10px;
+      margin-bottom: 36px;
+    }
+
+    .logo-mark {
+      width: 34px; height: 34px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .logo-mark svg { width: 18px; height: 18px; }
+
+    .logo-text {
+      font-family: var(--font-head);
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text span { color: var(--accent); }
+
+    /* nav label */
+    .nav-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #4a4a5a;
+      padding: 0 12px;
+      margin-bottom: 8px;
+    }
+
+    /* nav items */
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      color: #7a7a8a;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition);
+      position: relative;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item .nav-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background var(--transition);
+    }
+
+    .nav-item .nav-icon svg {
+      width: 17px; height: 17px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+    }
+
+    .nav-item.active {
+      background: rgba(232,255,71,0.1);
+      color: var(--accent);
+    }
+
+    .nav-item.active .nav-icon {
+      background: rgba(232,255,71,0.15);
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--accent);
+      color: #0f1117;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 100px;
+    }
+
+    /* sidebar footer */
+    .sidebar-footer {
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding-top: 16px;
+      margin-top: 8px;
+    }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .user-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #a8ff78);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f1117;
+      flex-shrink: 0;
+    }
+
+    .user-info { flex: 1; min-width: 0; }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-role {
+      font-size: 11px;
+      color: #4a4a5a;
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      margin-top: 4px;
+      border-radius: 10px;
+      color: #7a7a8a;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background var(--transition), color var(--transition);
+      width: 100%;
+      border: none;
+      background: none;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .logout-btn:hover { background: rgba(255,80,80,0.1); color: #ff6b6b; }
+
+    .logout-btn svg {
+      width: 15px; height: 15px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ── Main Content ───────────────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── Topbar ─────────────────────────────────────────────── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(245,244,240,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 36px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .topbar-title {
+      font-family: var(--font-head);
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-outline {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .btn-outline:hover {
+      border-color: #ccc;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .btn-outline svg {
+      width: 14px; height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--text);
+      color: var(--accent);
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity var(--transition), transform var(--transition);
+    }
+
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .btn-primary svg {
+      width: 14px; height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ── Content Area ───────────────────────────────────────── */
+    .content {
+      padding: 36px;
+      flex: 1;
+    }
+
+    /* welcome banner */
+    .welcome-banner {
+      background: var(--sidebar-bg);
+      border-radius: 20px;
+      padding: 36px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .welcome-banner::before {
+      content: '';
+      position: absolute;
+      right: -60px; top: -60px;
+      width: 260px; height: 260px;
+      background: radial-gradient(circle, rgba(232,255,71,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .welcome-banner::after {
+      content: '';
+      position: absolute;
+      right: 40px; bottom: -40px;
+      width: 160px; height: 160px;
+      border: 1px solid rgba(232,255,71,0.1);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .welcome-left { position: relative; z-index: 1; }
+
+    .welcome-greeting {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .welcome-name {
+      font-family: var(--font-head);
+      font-size: clamp(22px, 2.5vw, 30px);
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.03em;
+      margin-bottom: 10px;
+    }
+
+    .welcome-sub {
+      font-size: 14px;
+      color: #6a6a7a;
+      font-weight: 300;
+      max-width: 400px;
+      line-height: 1.5;
+    }
+
+    .welcome-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: #0f1117;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      font-family: var(--font-body);
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+
+    .welcome-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(232,255,71,0.3);
+    }
+
+    .welcome-cta svg {
+      width: 14px; height: 14px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .welcome-illustration {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 12px;
+    }
+
+    .stat-pill {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 16px 20px;
+      text-align: center;
+      min-width: 90px;
+    }
+
+    .stat-pill-value {
+      font-family: var(--font-head);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .stat-pill-label {
+      font-size: 11px;
+      color: #4a4a5a;
+      margin-top: 4px;
+      font-weight: 400;
+    }
+
+    /* section heading */
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: var(--font-head);
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .section-link {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: color var(--transition);
+    }
+
+    .section-link:hover { color: var(--text); }
+
+    /* ── Quick Action Cards ──────────────────────────────────── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .action-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text);
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+      display: block;
+      animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .action-card:nth-child(1) { animation-delay: 0.1s; }
+    .action-card:nth-child(2) { animation-delay: 0.18s; }
+    .action-card:nth-child(3) { animation-delay: 0.26s; }
+
+    .action-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+      border-color: #d0d0cc;
+    }
+
+    .card-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .card-icon svg {
+      width: 22px; height: 22px;
+      stroke: currentColor; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .icon-resume  { background: #fff3e0; color: #e65c00; }
+    .icon-jobs    { background: #e8f5e9; color: #2e7d32; }
+    .icon-apps    { background: #e8eaf6; color: #3949ab; }
+
+    .card-title {
+      font-family: var(--font-head);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .card-arrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      transition: gap var(--transition), color var(--transition);
+    }
+
+    .action-card:hover .card-arrow { gap: 8px; color: var(--text); }
+
+    .card-arrow svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── Recent Activity ─────────────────────────────────────── */
+    .activity-list {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.3s both;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+
+    .activity-item:last-child { border-bottom: none; }
+    .activity-item:hover { background: #fafaf8; }
+
+    .activity-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot-green  { background: #4caf50; }
+    .dot-orange { background: #ff9800; }
+    .dot-blue   { background: #2196f3; }
+    .dot-gray   { background: #9e9e9e; }
+
+    .activity-text { flex: 1; }
+
+    .activity-title {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .activity-meta {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    .activity-time {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* ── Animations ──────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Mobile hamburger ────────────────────────────────────── */
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      color: var(--text);
+    }
+
+    .hamburger svg {
+      width: 22px; height: 22px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .hamburger { display: flex; }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .welcome-illustration { display: none; }
+      .content { padding: 20px; }
+      .topbar  { padding: 0 20px; }
+    }
+
+    @media (max-width: 600px) {
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Overlay for mobile */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 90;
+    }
+
+    .overlay.show { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <!-- briefcase icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0f1117" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2"/>
+          <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+        </svg>
+      </div>
+      <span class="logo-text">Placement<span>Hub</span></span>
+    </div>
+
+    <p class="nav-label">Main Menu</p>
+
+    <nav class="nav">
+
+      <a href="#" class="nav-item active" data-page="resume">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+        </span>
+        Resume Generator
+      </a>
+
+      <a href="#" class="nav-item" data-page="jobs">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <rect x="2" y="7" width="20" height="14" rx="2"/>
+            <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+            <line x1="12" y1="12" x2="12" y2="16"/>
+            <line x1="10" y1="14" x2="14" y2="14"/>
+          </svg>
+        </span>
+        Job Postings
+        <span class="nav-badge">12</span>
+      </a>
+
+      <a href="#" class="nav-item" data-page="applications">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M9 11l3 3L22 4"/>
+            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+          </svg>
+        </span>
+        Applications
+        <span class="nav-badge">3</span>
+      </a>
+
+    </nav>
+
+    <!-- User + Logout -->
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar" id="avatarInitial">S</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebarEmail">{{ request.user.email }}</div>
+          <div class="user-role">Student</div>
+        </div>
+      </div>
+      <a href="/accounts/logout/" class="logout-btn">
+        <svg viewBox="0 0 24 24">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Sign Out
+      </a>
+    </div>
+
+  </aside>
+
+  <!-- Mobile overlay -->
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <!-- ── Main ── -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu">
+          <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <span class="topbar-title" id="pageTitle">Student Dashboard</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-outline">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          Notifications
+        </button>
+        <button class="btn-primary" onclick="handlePrimaryAction()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span id="primaryActionLabel">New Resume</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+
+      <!-- Welcome Banner -->
+      <div class="welcome-banner">
+        <div class="welcome-left">
+          <div class="welcome-greeting">Good day 👋</div>
+          <div class="welcome-name">
+            Welcome back, <span id="displayName">Student</span>!
+          </div>
+          <div class="welcome-sub">
+            Your placement journey is in progress. Browse new job openings and track your applications all in one place.
+          </div>
+          <button class="welcome-cta" onclick="navigateTo('jobs')">
+            Browse Jobs
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+        <div class="welcome-illustration">
+          <div class="stat-pill">
+            <div class="stat-pill-value">12</div>
+            <div class="stat-pill-label">Open Jobs</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-pill-value">3</div>
+            <div class="stat-pill-label">Applied</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-pill-value">1</div>
+            <div class="stat-pill-label">Interview</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="section-heading">
+        <h2 class="section-title">Quick Actions</h2>
+      </div>
+
+      <div class="cards-grid">
+        <a href="#" class="action-card" onclick="navigateTo('resume'); return false;">
+          <div class="card-icon icon-resume">
+            <svg viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <div class="card-title">Resume Generator</div>
+          <div class="card-desc">Build a professional ATS-friendly resume in minutes using our smart template builder.</div>
+          <span class="card-arrow">
+            Get started
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </a>
+
+        <a href="#" class="action-card" onclick="navigateTo('jobs'); return false;">
+          <div class="card-icon icon-jobs">
+            <svg viewBox="0 0 24 24">
+              <rect x="2" y="7" width="20" height="14" rx="2"/>
+              <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+            </svg>
+          </div>
+          <div class="card-title">Job Postings</div>
+          <div class="card-desc">Browse 12 open positions from top companies actively looking for candidates like you.</div>
+          <span class="card-arrow">
+            View all
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </a>
+
+        <a href="#" class="action-card" onclick="navigateTo('applications'); return false;">
+          <div class="card-icon icon-apps">
+            <svg viewBox="0 0 24 24">
+              <path d="M9 11l3 3L22 4"/>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+            </svg>
+          </div>
+          <div class="card-title">Applications</div>
+          <div class="card-desc">Track the status of your 3 active applications and stay updated on next steps.</div>
+          <span class="card-arrow">
+            Track status
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </a>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="section-heading">
+        <h2 class="section-title">Recent Activity</h2>
+        <a href="#" class="section-link">
+          View all
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="activity-list">
+        <div class="activity-item">
+          <span class="activity-dot dot-green"></span>
+          <div class="activity-text">
+            <div class="activity-title">Application submitted — Infosys (Software Engineer)</div>
+            <div class="activity-meta">Your resume was reviewed successfully</div>
+          </div>
+          <span class="activity-time">2h ago</span>
+        </div>
+        <div class="activity-item">
+          <span class="activity-dot dot-orange"></span>
+          <div class="activity-text">
+            <div class="activity-title">Interview scheduled — TCS (Data Analyst)</div>
+            <div class="activity-meta">Round 1 · Video Call · May 14, 2026</div>
+          </div>
+          <span class="activity-time">1d ago</span>
+        </div>
+        <div class="activity-item">
+          <span class="activity-dot dot-blue"></span>
+          <div class="activity-text">
+            <div class="activity-title">New job posted — Wipro (Full Stack Developer)</div>
+            <div class="activity-meta">Matches your profile · Deadline: May 20</div>
+          </div>
+          <span class="activity-time">2d ago</span>
+        </div>
+        <div class="activity-item">
+          <span class="activity-dot dot-gray"></span>
+          <div class="activity-text">
+            <div class="activity-title">Resume updated</div>
+            <div class="activity-meta">Version 2 saved to your profile</div>
+          </div>
+          <span class="activity-time">3d ago</span>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // ── Set user display info from Django template ──
+  const rawEmail = "{{ request.user.email }}";
+  if (rawEmail) {
+    const name = rawEmail.split('@')[0];
+    const initial = name.charAt(0).toUpperCase();
+    document.getElementById('displayName').textContent =
+      name.charAt(0).toUpperCase() + name.slice(1);
+    document.getElementById('avatarInitial').textContent = initial;
+    document.getElementById('sidebarEmail').textContent = rawEmail;
+  }
+
+  // ── Sidebar navigation ──
+  const navItems = document.querySelectorAll('.nav-item');
+  const pageTitle = document.getElementById('pageTitle');
+  const primaryLabel = document.getElementById('primaryActionLabel');
+
+  const pageConfig = {
+    resume:       { title: 'Resume Generator', action: 'New Resume',      url: '/student/resume/' },
+    jobs:         { title: 'Job Postings',      action: 'Filter Jobs',     url: '/student/jobs/' },
+    applications: { title: 'My Applications',   action: 'Track All',       url: '/student/applications/' },
+  };
+
+  function navigateTo(page) {
+    navItems.forEach(item => item.classList.remove('active'));
+    const target = document.querySelector(`[data-page="${page}"]`);
+    if (target) target.classList.add('active');
+
+    const cfg = pageConfig[page];
+    if (cfg) {
+      pageTitle.textContent = cfg.title;
+      primaryLabel.textContent = cfg.action;
+    }
+    closeSidebar();
+    // Uncomment to enable real navigation:
+    // window.location.href = cfg.url;
+  }
+
+  navItems.forEach(item => {
+    item.addEventListener('click', e => {
+      e.preventDefault();
+      navigateTo(item.dataset.page);
+    });
+  });
+
+  function handlePrimaryAction() {
+    const active = document.querySelector('.nav-item.active');
+    const page = active ? active.dataset.page : 'resume';
+    const cfg = pageConfig[page];
+    if (cfg) window.location.href = cfg.url;
+  }
+
+  // ── Mobile sidebar ──
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('show');
+  }
+
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+  }
+</script>
+</body>
+</html>

@@ -1,15 +1,23 @@
-# from allauth.account.forms import SignupForm
-# from django import forms
+# accounts/forms.py
 
-# from users.models import UserRole
+from allauth.account.forms import LoginForm
 
 
-# class StudentSignupForm(SignupForm):
+class CustomLoginForm(LoginForm):
 
-#     def save(self, request):
-#         user = super().save(request)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        print("CUSTOM LOGIN FORM LOADED")
 
-#         user.role = UserRole.STUDENT
-#         user.save()
+        self.fields['login'].widget.attrs.update({
+            'class': 'form-input',
+            'placeholder': 'Enter your email',
+        })
 
-#         return user
+        self.fields['password'].widget.attrs.update({
+            'class': 'form-input',
+            'placeholder': 'Enter your password',
+        })
+
+    def login(self, *args, **kwargs):
+        return super().login(*args, **kwargs)

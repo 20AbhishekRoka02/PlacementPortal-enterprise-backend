@@ -1,0 +1,374 @@
+{% load socialaccount %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Placement Portal Login</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Inter', sans-serif;
+        }
+
+        body{
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:
+                radial-gradient(circle at top left, #8b5cf6 0%, transparent 30%),
+                radial-gradient(circle at bottom right, #06b6d4 0%, transparent 30%),
+                linear-gradient(135deg, #0f172a, #020617);
+            overflow:hidden;
+            position:relative;
+        }
+
+        .orb{
+            position:absolute;
+            border-radius:50%;
+            filter:blur(90px);
+            opacity:0.5;
+            animation:float 8s infinite ease-in-out;
+        }
+
+        .orb1{
+            width:300px;
+            height:300px;
+            background:#7c3aed;
+            top:-80px;
+            left:-80px;
+        }
+
+        .orb2{
+            width:250px;
+            height:250px;
+            background:#06b6d4;
+            bottom:-70px;
+            right:-70px;
+            animation-delay:2s;
+        }
+
+        @keyframes float{
+            0%,100%{
+                transform:translateY(0px);
+            }
+            50%{
+                transform:translateY(-20px);
+            }
+        }
+
+        .login-container{
+            width:420px;
+            padding:40px;
+            border-radius:30px;
+            background:rgba(255,255,255,0.08);
+            backdrop-filter:blur(20px);
+            -webkit-backdrop-filter:blur(20px);
+            border:1px solid rgba(255,255,255,0.12);
+            box-shadow:
+                0 20px 50px rgba(0,0,0,0.35),
+                inset 0 1px 1px rgba(255,255,255,0.08);
+            position:relative;
+            z-index:10;
+        }
+
+        .logo{
+            width:60px;
+            height:60px;
+            border-radius:18px;
+            background:linear-gradient(135deg,#8b5cf6,#06b6d4);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:28px;
+            margin-bottom:20px;
+            box-shadow:0 10px 25px rgba(139,92,246,0.35);
+        }
+
+        h1{
+            color:white;
+            font-size:32px;
+            font-weight:800;
+            line-height:1.1;
+        }
+
+        .subtitle{
+            color:rgba(255,255,255,0.7);
+            margin-top:10px;
+            margin-bottom:35px;
+            font-size:15px;
+            line-height:1.6;
+        }
+
+        .input-group{
+            margin-bottom:20px;
+        }
+
+        .input-group label{
+            display:block;
+            color:rgba(255,255,255,0.85);
+            margin-bottom:10px;
+            font-size:14px;
+            font-weight:500;
+        }
+
+        .input-box input{
+            width:100%;
+            padding:16px 18px;
+            border:none;
+            outline:none;
+            border-radius:16px;
+            background:rgba(255,255,255,0.08);
+            border:1px solid rgba(255,255,255,0.08);
+            color:white;
+            font-size:15px;
+            transition:0.3s ease;
+        }
+
+        .input-box input::placeholder{
+            color:rgba(255,255,255,0.4);
+        }
+
+        .input-box input:focus{
+            border:1px solid #8b5cf6;
+            background:rgba(255,255,255,0.12);
+            box-shadow:0 0 0 4px rgba(139,92,246,0.15);
+        }
+
+        .options{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin:10px 0 28px;
+            font-size:14px;
+        }
+
+        .remember{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            color:rgba(255,255,255,0.7);
+        }
+
+        .forgot{
+            color:#c4b5fd;
+            text-decoration:none;
+            transition:0.3s;
+        }
+
+        .forgot:hover{
+            color:white;
+        }
+
+        .login-btn{
+            width:100%;
+            padding:16px;
+            border:none;
+            border-radius:18px;
+            background:linear-gradient(135deg,#8b5cf6,#06b6d4);
+            color:white;
+            font-size:16px;
+            font-weight:700;
+            cursor:pointer;
+            transition:0.35s ease;
+            box-shadow:0 10px 25px rgba(139,92,246,0.35);
+        }
+
+        .login-btn:hover{
+            transform:translateY(-3px);
+            box-shadow:0 18px 35px rgba(139,92,246,0.45);
+        }
+
+        .divider{
+            margin:28px 0;
+            text-align:center;
+            position:relative;
+            color:rgba(255,255,255,0.5);
+            font-size:14px;
+        }
+
+        .divider::before,
+        .divider::after{
+            content:'';
+            position:absolute;
+            top:50%;
+            width:38%;
+            height:1px;
+            background:rgba(255,255,255,0.12);
+        }
+
+        .divider::before{
+            left:0;
+        }
+
+        .divider::after{
+            right:0;
+        }
+
+        .social-login{
+            display:flex;
+            gap:15px;
+        }
+
+        .social-btn{
+            flex:1;
+            padding:14px;
+            border-radius:16px;
+            border:1px solid rgba(255,255,255,0.08);
+            background:rgba(255,255,255,0.05);
+            color:white;
+            cursor:pointer;
+            transition:0.3s ease;
+            font-weight:600;
+            text-decoration:none;
+            text-align:center;
+        }
+
+        .social-btn:hover{
+            background:rgba(255,255,255,0.12);
+            transform:translateY(-2px);
+        }
+
+        .register{
+            margin-top:28px;
+            text-align:center;
+            color:rgba(255,255,255,0.65);
+            font-size:14px;
+        }
+
+        .register a{
+            color:#c4b5fd;
+            text-decoration:none;
+            font-weight:600;
+        }
+
+        .register a:hover{
+            color:white;
+        }
+
+        .errorlist{
+            list-style:none;
+            margin-bottom:12px;
+            color:#ff8fa3;
+            font-size:14px;
+        }
+
+        @media(max-width:500px){
+            .login-container{
+                width:92%;
+                padding:30px 24px;
+            }
+
+            h1{
+                font-size:28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+
+    <div class="login-container">
+
+        <div class="logo">🚀</div>
+
+        <h1>Welcome Back</h1>
+
+        <p class="subtitle">
+            Login to your Placement Portal and continue your journey toward your dream company.
+        </p>
+
+        <form method="POST" action="{% url 'account_login' %}">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                {{ form.non_field_errors }}
+            {% endif %}
+
+            <div class="input-group">
+                <label>Email Address</label>
+                <div class="input-box">
+                    <input 
+                        type="email"
+                        name="login"
+                        placeholder="Enter your email"
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <div class="input-box">
+                    <input 
+                        type="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+            </div>
+
+            {% comment %} <div class="options">
+                <label class="remember">
+                    <input type="checkbox" name="remember">
+                    Remember me
+                </label>
+
+                <a href="{% url 'account_reset_password' %}" class="forgot">
+                    Forgot Password?
+                </a>
+            </div> {% endcomment %}
+
+            {% if redirect_field_value %}
+                <input type="hidden"
+                       name="{{ redirect_field_name }}"
+                       value="{{ redirect_field_value }}">
+            {% endif %}
+
+            <button type="submit" class="login-btn">
+                Sign In
+            </button>
+
+        </form>
+        {% get_providers as socialaccount_providers %}
+        {% if socialaccount_providers %}
+        <div class="divider">
+            or continue with
+        </div>
+
+        <div class="social-login">
+
+            <a href="{% provider_login_url 'google' %}" class="social-btn">
+                Google
+            </a>
+
+            <a href="{% provider_login_url 'linkedin_oauth2' %}" class="social-btn">
+                LinkedIn
+            </a>
+
+        </div>
+
+        <div class="register">
+            Don't have an account?
+            <a href="{% url 'account_signup' %}">
+                Create Account
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+{% extends "allauth/layouts/base.html" %}
+
+{% block body %}
+
+<style>
+
+    .manage-wrapper {
+        max-width: 900px;
+        margin: 50px auto;
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+</style>
+
+<div class="manage-wrapper">
+
+    {% block content %}
+    {% endblock %}
+
+</div>
+
+{% endblock %}
