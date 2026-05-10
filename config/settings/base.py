@@ -156,17 +156,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Add at the bottom
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
+        # 'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
 }
 
-REST_AUTH = {
-    'USE_JWT': True,
-    'JWT_AUTH_COOKIE': 'access',
-    'JWT_AUTH_REFRESH_COOKIE': 'refresh',
-    'JWT_AUTH_HTTPONLY': True,
-}
+# REST_AUTH = {
+#     'USE_JWT': True,
+#     'JWT_AUTH_COOKIE': 'access',
+#     'JWT_AUTH_REFRESH_COOKIE': 'refresh',
+#     'JWT_AUTH_HTTPONLY': True,
+# }
 
+REST_AUTH = {
+    'SESSION_LOGIN': True,
+    'USE_JWT': False,
+    'TOKEN_MODEL': None,  # Disable token auth
+}
 # Production
 # SIMPLE_JWT = {
 #     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),

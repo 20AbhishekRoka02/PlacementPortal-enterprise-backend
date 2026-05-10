@@ -19,6 +19,15 @@ def dashboard(request):
     return redirect('/accounts/login/')
 
 
+@login_required
+def resume(request):
+    if request.user.is_authenticated:
+        if request.user.role == UserRole.STUDENT:
+            return render(request, 'student/resume.html')
+        return redirect('/admin/')
+    return redirect('/accounts/login/')
+
+
 # API Views
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()

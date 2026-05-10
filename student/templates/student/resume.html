@@ -1,0 +1,1381 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <title>Resume Generator • Placement Portal</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+
+        :root{
+            --bg:#020617;
+            --bg-secondary:#0f172a;
+
+            --card:rgba(255,255,255,0.06);
+            --card-border:rgba(255,255,255,0.08);
+
+            --text:#ffffff;
+            --muted:rgba(255,255,255,0.65);
+
+            --purple:#8b5cf6;
+            --cyan:#06b6d4;
+
+            --green:#22c55e;
+            --orange:#f59e0b;
+            --red:#ef4444;
+
+            --shadow:0 20px 60px rgba(0,0,0,0.45);
+        }
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Inter',sans-serif;
+        }
+
+        body{
+            min-height:100vh;
+            background:
+                radial-gradient(circle at top left, rgba(139,92,246,0.22) 0%, transparent 28%),
+                radial-gradient(circle at bottom right, rgba(6,182,212,0.18) 0%, transparent 28%),
+                linear-gradient(135deg,#020617,#0f172a);
+            color:var(--text);
+            overflow-x:hidden;
+        }
+
+        .orb{
+            position:fixed;
+            border-radius:50%;
+            filter:blur(100px);
+            opacity:0.35;
+            z-index:0;
+            animation:float 8s ease-in-out infinite;
+        }
+
+        .orb1{
+            width:300px;
+            height:300px;
+            background:#8b5cf6;
+            top:-120px;
+            left:-120px;
+        }
+
+        .orb2{
+            width:260px;
+            height:260px;
+            background:#06b6d4;
+            bottom:-120px;
+            right:-120px;
+            animation-delay:2s;
+        }
+
+        @keyframes float{
+            0%,100%{
+                transform:translateY(0px);
+            }
+            50%{
+                transform:translateY(-20px);
+            }
+        }
+
+        .container{
+            width:min(1250px,92%);
+            margin:auto;
+            position:relative;
+            z-index:2;
+            padding-bottom:60px;
+        }
+
+        /* ───────── NAVBAR ───────── */
+
+        .navbar{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:28px 0;
+        }
+
+        .brand{
+            display:flex;
+            align-items:center;
+            gap:14px;
+        }
+
+        .brand-logo{
+            width:56px;
+            height:56px;
+            border-radius:18px;
+            background:linear-gradient(135deg,var(--purple),var(--cyan));
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:24px;
+            box-shadow:0 12px 28px rgba(139,92,246,0.35);
+        }
+
+        .brand-text h2{
+            font-size:21px;
+            font-weight:800;
+            letter-spacing:-0.5px;
+        }
+
+        .brand-text p{
+            font-size:13px;
+            color:var(--muted);
+            margin-top:3px;
+        }
+
+        .nav-actions{
+            display:flex;
+            gap:14px;
+        }
+
+        .nav-btn{
+            padding:13px 18px;
+            border-radius:16px;
+            background:rgba(255,255,255,0.06);
+            border:1px solid rgba(255,255,255,0.08);
+            color:white;
+            text-decoration:none;
+            font-size:14px;
+            font-weight:600;
+            transition:0.3s ease;
+        }
+
+        .nav-btn:hover{
+            transform:translateY(-2px);
+            background:rgba(255,255,255,0.1);
+        }
+
+        .nav-btn.primary{
+            background:linear-gradient(135deg,var(--purple),var(--cyan));
+            border:none;
+            box-shadow:0 12px 28px rgba(139,92,246,0.35);
+        }
+
+        /* ───────── HERO ───────── */
+
+        .hero{
+            padding:44px;
+            border-radius:34px;
+            background:rgba(255,255,255,0.06);
+            border:1px solid rgba(255,255,255,0.08);
+            backdrop-filter:blur(20px);
+            -webkit-backdrop-filter:blur(20px);
+            box-shadow:var(--shadow);
+            position:relative;
+            overflow:hidden;
+            margin-bottom:30px;
+        }
+
+        .hero::before{
+            content:'';
+            position:absolute;
+            width:300px;
+            height:300px;
+            border-radius:50%;
+            background:radial-gradient(circle, rgba(139,92,246,0.18), transparent 70%);
+            top:-100px;
+            right:-100px;
+        }
+
+        .hero-badge{
+            display:inline-flex;
+            align-items:center;
+            gap:10px;
+            padding:10px 18px;
+            border-radius:999px;
+            background:rgba(139,92,246,0.12);
+            border:1px solid rgba(139,92,246,0.18);
+            color:#d8b4fe;
+            font-size:13px;
+            font-weight:600;
+            margin-bottom:22px;
+        }
+
+        .hero h1{
+            font-size:clamp(36px,6vw,62px);
+            line-height:1;
+            letter-spacing:-3px;
+            font-weight:800;
+            max-width:760px;
+            margin-bottom:20px;
+        }
+
+        .hero p{
+            max-width:760px;
+            color:var(--muted);
+            line-height:1.9;
+            font-size:16px;
+        }
+
+        /* ───────── LAYOUT ───────── */
+
+        .layout{
+            display:grid;
+            grid-template-columns:1fr 350px;
+            gap:28px;
+            align-items:start;
+        }
+
+        /* ───────── FORM CARD ───────── */
+
+        .form-card{
+            padding:34px;
+            border-radius:32px;
+            background:rgba(255,255,255,0.06);
+            border:1px solid rgba(255,255,255,0.08);
+            backdrop-filter:blur(20px);
+            -webkit-backdrop-filter:blur(20px);
+            box-shadow:var(--shadow);
+        }
+
+        .section{
+            margin-bottom:40px;
+        }
+
+        .section:last-child{
+            margin-bottom:0;
+        }
+
+        .section-header{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:24px;
+        }
+
+        .section-title{
+            font-size:24px;
+            font-weight:800;
+            letter-spacing:-1px;
+        }
+
+        .section-subtitle{
+            margin-top:6px;
+            color:var(--muted);
+            font-size:14px;
+        }
+
+        .add-btn{
+            border:none;
+            outline:none;
+            padding:12px 18px;
+            border-radius:14px;
+            background:rgba(255,255,255,0.08);
+            border:1px solid rgba(255,255,255,0.08);
+            color:white;
+            font-size:13px;
+            font-weight:600;
+            cursor:pointer;
+            transition:0.3s ease;
+        }
+
+        .add-btn:hover{
+            transform:translateY(-2px);
+            background:rgba(255,255,255,0.12);
+        }
+
+        .grid-2{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:18px;
+        }
+
+        .input-group{
+            margin-bottom:18px;
+        }
+
+        .input-group label{
+            display:block;
+            margin-bottom:10px;
+            font-size:14px;
+            font-weight:600;
+            color:white;
+        }
+
+        .input-group input,
+        .input-group textarea{
+            width:100%;
+            border:none;
+            outline:none;
+            padding:16px 18px;
+            border-radius:18px;
+            background:rgba(255,255,255,0.06);
+            border:1px solid rgba(255,255,255,0.08);
+            color:white;
+            font-size:15px;
+            transition:0.3s ease;
+        }
+
+        .input-group textarea{
+            resize:vertical;
+            min-height:120px;
+        }
+
+        .input-group input::placeholder,
+        .input-group textarea::placeholder{
+            color:rgba(255,255,255,0.4);
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus{
+            border:1px solid var(--purple);
+            box-shadow:0 0 0 4px rgba(139,92,246,0.16);
+            background:rgba(255,255,255,0.08);
+        }
+
+        .dynamic-card{
+            padding:24px;
+            border-radius:24px;
+            background:rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.06);
+            margin-bottom:18px;
+            position:relative;
+        }
+
+        .remove-btn{
+            position:absolute;
+            top:16px;
+            right:16px;
+            width:34px;
+            height:34px;
+            border:none;
+            border-radius:12px;
+            background:rgba(239,68,68,0.12);
+            color:#fca5a5;
+            cursor:pointer;
+            font-size:16px;
+            transition:0.3s ease;
+        }
+
+        .remove-btn:hover{
+            background:rgba(239,68,68,0.2);
+        }
+
+        .submit-btn{
+            width:100%;
+            border:none;
+            outline:none;
+            padding:20px;
+            border-radius:20px;
+            background:linear-gradient(135deg,var(--purple),var(--cyan));
+            color:white;
+            font-size:16px;
+            font-weight:800;
+            cursor:pointer;
+            transition:0.35s ease;
+            box-shadow:0 16px 34px rgba(139,92,246,0.35);
+        }
+
+        .submit-btn:hover{
+            transform:translateY(-3px);
+            box-shadow:0 22px 42px rgba(139,92,246,0.45);
+        }
+
+        /* ───────── SIDEBAR ───────── */
+
+        .sidebar{
+            display:flex;
+            flex-direction:column;
+            gap:24px;
+            position:sticky;
+            top:24px;
+        }
+
+        .sidebar-card{
+            padding:28px;
+            border-radius:28px;
+            background:rgba(255,255,255,0.06);
+            border:1px solid rgba(255,255,255,0.08);
+            backdrop-filter:blur(18px);
+            -webkit-backdrop-filter:blur(18px);
+            box-shadow:var(--shadow);
+        }
+
+        .sidebar-card h3{
+            font-size:22px;
+            font-weight:800;
+            margin-bottom:14px;
+            letter-spacing:-1px;
+        }
+
+        .sidebar-card p{
+            color:var(--muted);
+            line-height:1.8;
+            font-size:14px;
+        }
+
+        .tips{
+            display:flex;
+            flex-direction:column;
+            gap:16px;
+            margin-top:22px;
+        }
+
+        .tip{
+            display:flex;
+            align-items:flex-start;
+            gap:12px;
+        }
+
+        .tip-icon{
+            width:42px;
+            height:42px;
+            border-radius:14px;
+            background:rgba(139,92,246,0.12);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:18px;
+            flex-shrink:0;
+        }
+
+        .tip h4{
+            font-size:14px;
+            margin-bottom:4px;
+        }
+
+        .tip p{
+            font-size:13px;
+            color:var(--muted);
+            line-height:1.6;
+        }
+
+        /* ───────── RESPONSIVE ───────── */
+
+        @media(max-width:1050px){
+
+            .layout{
+                grid-template-columns:1fr;
+            }
+
+            .sidebar{
+                position:relative;
+                top:0;
+            }
+        }
+
+        @media(max-width:700px){
+
+            .navbar{
+                flex-direction:column;
+                align-items:flex-start;
+                gap:18px;
+            }
+
+            .nav-actions{
+                width:100%;
+            }
+
+            .nav-btn{
+                flex:1;
+                text-align:center;
+            }
+
+            .hero{
+                padding:30px;
+            }
+
+            .form-card{
+                padding:24px;
+            }
+
+            .grid-2{
+                grid-template-columns:1fr;
+            }
+
+            .section-header{
+                flex-direction:column;
+                align-items:flex-start;
+                gap:14px;
+            }
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+
+    <div class="container">
+
+        <!-- NAVBAR -->
+
+        <nav class="navbar">
+
+            <div class="brand">
+
+                <div class="brand-logo">
+                    🚀
+                </div>
+
+                <div class="brand-text">
+                    <h2>Placement Portal</h2>
+                    <p>AI Powered Resume Builder</p>
+                </div>
+
+            </div>
+
+            <div class="nav-actions">
+
+                <a href="/student/dashboard/" class="nav-btn">
+                    Dashboard
+                </a>
+
+                <a href="/student/jobs/" class="nav-btn primary">
+                    Browse Jobs
+                </a>
+
+            </div>
+
+        </nav>
+
+        <!-- HERO -->
+
+        <section class="hero">
+
+            <div class="hero-badge">
+                ✨ Smart Resume Generator
+            </div>
+
+            <h1>
+                Build an ATS-Friendly Resume That Gets You Hired.
+            </h1>
+
+            <p>
+                Create a professional and modern resume for placements, internships, and job applications. Add your education, projects, social links, and experience — all in one place.
+            </p>
+
+        </section>
+
+        <!-- LAYOUT -->
+
+        <div class="layout">
+
+            <!-- FORM -->
+
+            <div class="form-card">
+
+                <form id="resume-form">
+
+                    {% csrf_token %}
+
+                    <!-- BASIC INFO -->
+
+                    <div class="section">
+
+                        <div class="section-header">
+
+                            <div>
+                                <h2 class="section-title">
+                                    Basic Information
+                                </h2>
+
+                                <p class="section-subtitle">
+                                    Your personal and contact information.
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="grid-2">
+
+                            <div class="input-group">
+                                <label>Full Name</label>
+
+                                <input type="text"
+                                       name="name"
+                                       placeholder="John Doe"
+                                       required>
+                            </div>
+
+                            <div class="input-group">
+                                <label>Email Address</label>
+
+                                <input type="email"
+                                       name="email"
+                                       placeholder="john@example.com"
+                                       value="{{ request.user.email }}"
+                                       required>
+                            </div>
+
+                        </div>
+
+                        <div class="grid-2">
+
+                            <div class="input-group">
+                                <label>Phone Number</label>
+
+                                <input type="text"
+                                       name="phone"
+                                       placeholder="+91 9876543210"
+                                       required>
+                            </div>
+
+                            <div class="input-group">
+                                <label>Professional Title</label>
+
+                                <input type="text"
+                                       name="headline"
+                                       placeholder="Full Stack Developer">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- SOCIAL LINKS -->
+
+                    <div class="section">
+
+                        <div class="section-header">
+
+                            <div>
+                                <h2 class="section-title">
+                                    Social Media
+                                </h2>
+
+                                <p class="section-subtitle">
+                                    Add your professional profiles and portfolio links.
+                                </p>
+                            </div>
+
+                            <button type="button"
+                                    class="add-btn"
+                                    id="add-social-btn">
+
+                                + Add Link
+
+                            </button>
+
+                        </div>
+
+                        <div id="social-media-container">
+
+                            <div class="dynamic-card social-item">
+
+                                <button type="button"
+                                        class="remove-btn"
+                                        onclick="removeCard(this)">
+
+                                    ✕
+                                </button>
+
+                                <div class="grid-2">
+
+                                    <div class="input-group">
+                                        <label>Platform</label>
+
+                                        <input type="text"
+                                               name="social_platform[]"
+                                               placeholder="LinkedIn">
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label>URL</label>
+
+                                        <input type="url"
+                                               name="social_url[]"
+                                               placeholder="https://linkedin.com/in/...">
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- EDUCATION -->
+
+                    <div class="section">
+
+                        <div class="section-header">
+
+                            <div>
+                                <h2 class="section-title">
+                                    Education
+                                </h2>
+
+                                <p class="section-subtitle">
+                                    Add your academic details and qualifications.
+                                </p>
+                            </div>
+
+                            <button type="button"
+                                    class="add-btn"
+                                    onclick="addEducation()">
+
+                                + Add Education
+
+                            </button>
+
+                        </div>
+
+                        <div id="education-container">
+
+                            <div class="dynamic-card education-item">
+
+                                <button type="button"
+                                        class="remove-btn"
+                                        onclick="removeCard(this)">
+
+                                    ✕
+                                </button>
+
+                                <div class="grid-2">
+
+                                    <div class="input-group">
+                                        <label>Institute</label>
+
+                                        <input type="text"
+                                               name="education_institute[]"
+                                               placeholder="ABC University">
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label>Course / Degree</label>
+
+                                        <input type="text"
+                                               name="education_degree[]"
+                                               placeholder="B.Tech Computer Science">
+                                    </div>
+
+                                </div>
+
+                                <div class="grid-2">
+
+                                    <div class="input-group">
+                                        <label>Start Year</label>
+
+                                        <input type="text"
+                                               name="education_start[]"
+                                               placeholder="2023">
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label>End Year</label>
+
+                                        <input type="text"
+                                               name="education_end[]"
+                                               placeholder="2027">
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- EXPERIENCE -->
+
+                    <div class="section">
+
+                        <div class="section-header">
+
+                            <div>
+                                <h2 class="section-title">
+                                    Experience
+                                </h2>
+
+                                <p class="section-subtitle">
+                                    Add internships, freelancing, or work experience.
+                                </p>
+                            </div>
+
+                            <button type="button"
+                                    class="add-btn"
+                                    onclick="addExperience()">
+
+                                + Add Experience
+
+                            </button>
+
+                        </div>
+
+                        <div id="experience-container">
+
+                            <div class="dynamic-card experience-item">
+
+                                <button type="button"
+                                        class="remove-btn"
+                                        onclick="removeCard(this)">
+
+                                    ✕
+                                </button>
+
+                                <div class="grid-2">
+
+                                    <div class="input-group">
+                                        <label>Company</label>
+
+                                        <input type="text"
+                                               name="experience_company[]"
+                                               placeholder="Google">
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label>Role</label>
+
+                                        <input type="text"
+                                               name="experience_role[]"
+                                               placeholder="Frontend Intern">
+                                    </div>
+
+                                </div>
+
+                                <div class="input-group">
+                                    <label>Description</label>
+
+                                    <textarea name="experience_description[]"
+                                              placeholder="Worked on scalable web applications..."></textarea>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- PROJECTS -->
+
+                    <div class="section">
+
+                        <div class="section-header">
+
+                            <div>
+                                <h2 class="section-title">
+                                    Projects
+                                </h2>
+
+                                <p class="section-subtitle">
+                                    Showcase your best projects and technical work.
+                                </p>
+                            </div>
+
+                            <button type="button"
+                                    class="add-btn"
+                                    onclick="addProject()">
+
+                                + Add Project
+
+                            </button>
+
+                        </div>
+
+                        <div id="projects-container">
+
+                            <div class="dynamic-card project-item">
+
+                                <button type="button"
+                                        class="remove-btn"
+                                        onclick="removeCard(this)">
+
+                                    ✕
+                                </button>
+
+                                <div class="grid-2">
+
+                                    <div class="input-group">
+                                        <label>Project Name</label>
+
+                                        <input type="text"
+                                               name="project_name[]"
+                                               placeholder="Placement Portal">
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label>Project Link</label>
+
+                                        <input type="url"
+                                               name="project_link[]"
+                                               placeholder="https://github.com/...">
+                                    </div>
+
+                                </div>
+
+                                <div class="input-group">
+                                    <label>Description</label>
+
+                                    <textarea name="project_description[]"
+                                              placeholder="Built a complete placement management platform..."></textarea>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- MISC -->
+
+                    <div class="section">
+
+                        <div class="section-header">
+
+                            <div>
+                                <h2 class="section-title">
+                                    Additional Section
+                                </h2>
+
+                                <p class="section-subtitle">
+                                    Add certifications, achievements, skills, or anything extra.
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="input-group">
+                            <label>Section Title</label>
+
+                            <input type="text"
+                                   name="misc_title"
+                                   placeholder="Skills / Certifications / Achievements">
+                        </div>
+
+                        <div class="input-group">
+                            <label>Description</label>
+
+                            <textarea name="misc_description"
+                                      placeholder="Python, Docker, Kubernetes, AWS, Problem Solving..."></textarea>
+                        </div>
+
+                    </div>
+
+                    <button id="submit-btn" type="submit"
+                            class="submit-btn">
+
+                        Generate Resume 🚀
+
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- SIDEBAR -->
+
+            <div class="sidebar">
+
+                <div class="sidebar-card">
+
+                    <h3>
+                        Resume Tips
+                    </h3>
+
+                    <p>
+                        A strong resume increases your chances of getting shortlisted during placements and internships.
+                    </p>
+
+                    <div class="tips">
+
+                        <div class="tip">
+
+                            <div class="tip-icon">
+                                ⚡
+                            </div>
+
+                            <div>
+                                <h4>
+                                    Keep It Crisp
+                                </h4>
+
+                                <p>
+                                    Write concise bullet points and highlight impact.
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="tip">
+
+                            <div class="tip-icon">
+                                🎯
+                            </div>
+
+                            <div>
+                                <h4>
+                                    ATS Friendly
+                                </h4>
+
+                                <p>
+                                    Use simple headings and relevant keywords.
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="tip">
+
+                            <div class="tip-icon">
+                                🚀
+                            </div>
+
+                            <div>
+                                <h4>
+                                    Highlight Projects
+                                </h4>
+
+                                <p>
+                                    Showcase technical work and measurable achievements.
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="sidebar-card">
+
+                    <h3>
+                        Profile Status
+                    </h3>
+
+                    <p>
+                        Complete your resume to unlock better placement opportunities and improve recruiter visibility.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const form = document.getElementById("resume-form");
+
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const data = {
+                name: form.name.value,
+                email: form.email.value,
+                phone: form.phone.value,
+                headline: form.headline.value,
+
+                social_media: [],
+                education: [],
+                experience: [],
+                projects: [],
+
+                misc: {
+                    title: form.misc_title.value,
+                    description: form.misc_description.value
+                }
+            };
+
+            // ---------------- SOCIAL MEDIA ----------------
+            const socialPlatforms = form.querySelectorAll('input[name="social_platform[]"]');
+            const socialUrls = form.querySelectorAll('input[name="social_url[]"]');
+
+            socialPlatforms.forEach((input, i) => {
+                if (input.value || socialUrls[i]?.value) {
+                    data.social_media.push({
+                        platform: input.value,
+                        url: socialUrls[i]?.value
+                    });
+                }
+            });
+
+            // ---------------- EDUCATION ----------------
+            const eduInstitute = form.querySelectorAll('input[name="education_institute[]"]');
+            const eduDegree = form.querySelectorAll('input[name="education_degree[]"]');
+            const eduStart = form.querySelectorAll('input[name="education_start[]"]');
+            const eduEnd = form.querySelectorAll('input[name="education_end[]"]');
+
+            eduInstitute.forEach((input, i) => {
+                if (input.value || eduDegree[i]?.value) {
+                    data.education.push({
+                        institute: input.value,
+                        degree: eduDegree[i]?.value,
+                        start: eduStart[i]?.value,
+                        end: eduEnd[i]?.value
+                    });
+                }
+            });
+
+            // ---------------- EXPERIENCE ----------------
+            const expCompany = form.querySelectorAll('input[name="experience_company[]"]');
+            const expRole = form.querySelectorAll('input[name="experience_role[]"]');
+            const expDesc = form.querySelectorAll('textarea[name="experience_description[]"]');
+
+            expCompany.forEach((input, i) => {
+                if (input.value || expRole[i]?.value) {
+                    data.experience.push({
+                        company: input.value,
+                        role: expRole[i]?.value,
+                        description: expDesc[i]?.value
+                    });
+                }
+            });
+
+            // ---------------- PROJECTS ----------------
+            const projName = form.querySelectorAll('input[name="project_name[]"]');
+            const projLink = form.querySelectorAll('input[name="project_link[]"]');
+            const projDesc = form.querySelectorAll('textarea[name="project_description[]"]');
+
+            projName.forEach((input, i) => {
+                if (input.value || projLink[i]?.value) {
+                    data.projects.push({
+                        name: input.value,
+                        link: projLink[i]?.value,
+                        description: projDesc[i]?.value
+                    });
+                }
+            });
+
+            // ---------------- FINAL OUTPUT ----------------
+            console.log("🔥 FINAL JSON PAYLOAD:");
+            console.log(JSON.stringify(data, null, 2));
+
+            const csrfToken = getCookie("csrftoken");
+
+            const res = await fetch("/student/resume/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+                credentials: "include",
+                body: JSON.stringify(data, null, 2)
+            });
+
+            const resdata = await res.json();
+            console.log(resdata);
+
+        });
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function removeCard(button){
+
+            const card = button.parentElement;
+
+            card.remove();
+        }
+
+        document.getElementById("add-social-btn").addEventListener("click", addSocialMedia);
+
+        function addSocialMedia(){
+
+            const container = document.getElementById('social-media-container');
+
+            container.insertAdjacentHTML('beforeend', `
+                <div class="dynamic-card social-item">
+
+                    <button type="button"
+                            class="remove-btn"
+                            onclick="removeCard(this)">
+
+                        ✕
+                    </button>
+
+                    <div class="grid-2">
+
+                        <div class="input-group">
+                            <label>Platform</label>
+
+                            <input type="text"
+                                   name="social_platform[]"
+                                   placeholder="GitHub">
+                        </div>
+
+                        <div class="input-group">
+                            <label>URL</label>
+
+                            <input type="url"
+                                   name="social_url[]"
+                                   placeholder="https://github.com/...">
+                        </div>
+
+                    </div>
+
+                </div>
+            `);
+        }
+
+        function addEducation(){
+
+            const container = document.getElementById('education-container');
+
+            container.insertAdjacentHTML('beforeend', `
+                <div class="dynamic-card education-item">
+
+                    <button type="button"
+                            class="remove-btn"
+                            onclick="removeCard(this)">
+
+                        ✕
+                    </button>
+
+                    <div class="grid-2">
+
+                        <div class="input-group">
+                            <label>Institute</label>
+
+                            <input type="text"
+                                   name="education_institute[]"
+                                   placeholder="XYZ University">
+                        </div>
+
+                        <div class="input-group">
+                            <label>Course / Degree</label>
+
+                            <input type="text"
+                                   name="education_degree[]"
+                                   placeholder="BCA">
+                        </div>
+
+                    </div>
+
+                    <div class="grid-2">
+
+                        <div class="input-group">
+                            <label>Start Year</label>
+
+                            <input type="text"
+                                   name="education_start[]"
+                                   placeholder="2022">
+                        </div>
+
+                        <div class="input-group">
+                            <label>End Year</label>
+
+                            <input type="text"
+                                   name="education_end[]"
+                                   placeholder="2025">
+                        </div>
+
+                    </div>
+
+                </div>
+            `);
+        }
+
+        function addExperience(){
+
+            const container = document.getElementById('experience-container');
+
+            container.insertAdjacentHTML('beforeend', `
+                <div class="dynamic-card experience-item">
+
+                    <button type="button"
+                            class="remove-btn"
+                            onclick="removeCard(this)">
+
+                        ✕
+                    </button>
+
+                    <div class="grid-2">
+
+                        <div class="input-group">
+                            <label>Company</label>
+
+                            <input type="text"
+                                   name="experience_company[]"
+                                   placeholder="Microsoft">
+                        </div>
+
+                        <div class="input-group">
+                            <label>Role</label>
+
+                            <input type="text"
+                                   name="experience_role[]"
+                                   placeholder="Backend Developer Intern">
+                        </div>
+
+                    </div>
+
+                    <div class="input-group">
+                        <label>Description</label>
+
+                        <textarea name="experience_description[]"
+                                  placeholder="Worked on APIs and deployment..."></textarea>
+                    </div>
+
+                </div>
+            `);
+        }
+
+        function addProject(){
+
+            const container = document.getElementById('projects-container');
+
+            container.insertAdjacentHTML('beforeend', `
+                <div class="dynamic-card project-item">
+
+                    <button type="button"
+                            class="remove-btn"
+                            onclick="removeCard(this)">
+
+                        ✕
+                    </button>
+
+                    <div class="grid-2">
+
+                        <div class="input-group">
+                            <label>Project Name</label>
+
+                            <input type="text"
+                                   name="project_name[]"
+                                   placeholder="AI Resume Builder">
+                        </div>
+
+                        <div class="input-group">
+                            <label>Project Link</label>
+
+                            <input type="url"
+                                   name="project_link[]"
+                                   placeholder="https://github.com/...">
+                        </div>
+
+                    </div>
+
+                    <div class="input-group">
+                        <label>Description</label>
+
+                        <textarea name="project_description[]"
+                                  placeholder="Built using Django and AI..."></textarea>
+                    </div>
+
+                </div>
+            `);
+        }
+
+    </script>
+
+</body>
+</html>
