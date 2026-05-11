@@ -167,15 +167,25 @@ class ApplicationAdmin(admin.ModelAdmin):
         return False
 
     def has_add_permission(self, request):
-        return False
+        if request.user.is_authenticated:
+            if request.user.role == UserRole.COMPANY:
+                return False
+            elif request.user.role in [UserRole.ADMIN, UserRole.UNIVERSITY]:
+                return True
 
     def has_change_permission(self, request, obj=None):
-        return False
+        if request.user.is_authenticated:
+            if request.user.role == UserRole.COMPANY:
+                return False
+            elif request.user.role in [UserRole.ADMIN, UserRole.UNIVERSITY]:
+                return True
 
     def has_delete_permission(self, request, obj=None):
         if request.user.is_authenticated:
             if request.user.role == UserRole.COMPANY:
                 return False
+            elif request.user.role in [UserRole.ADMIN, UserRole.UNIVERSITY]:
+                return True
 
     # =========================
     # FILTER DATA
