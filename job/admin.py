@@ -173,7 +173,9 @@ class ApplicationAdmin(admin.ModelAdmin):
         return False
 
     def has_delete_permission(self, request, obj=None):
-        return False
+        if request.user.is_authenticated:
+            if request.user.role == UserRole.COMPANY:
+                return False
 
     # =========================
     # FILTER DATA
